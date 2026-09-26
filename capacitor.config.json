@@ -1,0 +1,11 @@
+{
+  "appId": "online.forwardip.nia",
+  "appName": "Nia",
+  "webDir": "www",
+  "backgroundColor": "#FDF7F3",
+  "android": {
+    "allowMixedContent": false,
+    "captureInput": true,
+    "webContentsDebuggingEnabled": false
+  }
+}
