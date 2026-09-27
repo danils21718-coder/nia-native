@@ -4,10 +4,16 @@
   "private": true,
   "dependencies": {
     "@capacitor/android": "8.5.2",
-    "@capacitor/core": "8.5.2"
+    "@capacitor/core": "8.5.2",
+    "@capacitor/ios": "8.5.2",
+    "@revenuecat/purchases-capacitor": "13.6.1"
   },
   "devDependencies": {
     "@capacitor/assets": "3.0.5",
-    "@capacitor/cli": "8.5.2"
+    "@capacitor/cli": "8.5.2",
+    "esbuild": "0.28.2"
+  },
+  "scripts": {
+    "build:rc": "esbuild src/rc-bridge.js --bundle --format=iife --outfile=www/rc.js"
   }
 }

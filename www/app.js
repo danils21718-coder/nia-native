@@ -98,6 +98,7 @@ ru:{tagline:'цикл, который знаете только вы',
  pw2:'Вся история и аналитика', pw2s:'Без ограничений по времени',
  pw3:'Отчёт для врача', pw3s:'PDF и CSV, формируются на телефоне',
  pw4:'Данные только у вас', pw4s:'Ни рекламы, ни передачи третьим лицам',
+ pwM:'Месяц', pwMP:'$2,99', pwMN:'Отмена в любой момент',
  pwQ:'3 месяца', pwQP:'$3,99', pwQN:'$1,33 в месяц',
  pwYear:'Год', pwYearP:'$15,99', pwYearN:'$1,33 в месяц · выгоднее всего', pwBest:'ХИТ',
  pwLife:'Навсегда', pwLifeP:'$34,99', pwLifeN:'Разовый платёж, без подписки',
@@ -192,6 +193,7 @@ en:{tagline:'a cycle only you can see',
  pw2:'Your whole history and insights', pw2s:'No time limits',
  pw3:'Doctor\u2019s report', pw3s:'PDF and CSV, built on your phone',
  pw4:'Your data stays yours', pw4s:'No ads, nothing shared with anyone',
+ pwM:'Monthly', pwMP:'$2.99', pwMN:'Cancel anytime',
  pwQ:'3 months', pwQP:'$3.99', pwQN:'$1.33 per month',
  pwYear:'Yearly', pwYearP:'$15.99', pwYearN:'$1.33 per month · best value', pwBest:'BEST',
  pwLife:'Lifetime', pwLifeP:'$34.99', pwLifeN:'One payment, no subscription',
@@ -295,12 +297,66 @@ function phaseOf(dateStr, p){
 // ВАЖНО: это состояние интерфейса. Реальная проверка покупки — через магазин
 // (StoreKit / Play Billing), обычно RevenueCat. Он же не даёт получить второй триал
 // после переустановки: пробный период привязан к Apple ID / Google-аккаунту.
+
+/* ================= ПОКУПКИ (RevenueCat) ================= */
+const RC_KEYS = { android: '__RC_ANDROID_KEY__', ios: '__RC_IOS_KEY__' };
+const NATIVE = !!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform());
+const RC = () => window.NiaPurchases;
+let rcReady = false, rcPkgs = {};
+const RC_KEY = (window.Capacitor && window.Capacitor.getPlatform && RC_KEYS[window.Capacitor.getPlatform()]) || '__';
+function applyInfo(ci){
+  const e = ci && ci.entitlements && ci.entitlements.active && ci.entitlements.active.premium;
+  if(e){
+    const pid = e.productIdentifier || '';
+    S.sub.status = pid.indexOf('lifetime')>=0 ? 'lifetime' : (e.periodType==='TRIAL' ? 'trial' : 'paid');
+    S.sub.plan = pid.indexOf('lifetime')>=0 ? 'life' : pid.indexOf('3month')>=0 ? 'quarter' : pid.indexOf('monthly')>=0 ? 'month' : 'year';
+    S.sub.expires = e.expirationDate || null;
+  } else { S.sub.status = 'none'; S.sub.expires = null; }
+  save();
+}
+async function rcInit(){
+  if(!NATIVE || !RC() || RC_KEY.indexOf('__')===0) return;
+  try{
+    await RC().configure({ apiKey: RC_KEY });
+    rcReady = true;
+    const r = await RC().getCustomerInfo(); applyInfo(r.customerInfo);
+  }catch(e){ console.log('rc init', e); }
+}
+async function rcLoadPackages(){
+  if(!rcReady) return;
+  try{
+    const o = await RC().getOfferings(); const c = o && o.current; if(!c) return;
+    (c.availablePackages||[]).forEach(p=>{
+      const t = p.packageType, id = p.identifier;
+      if(t==='ANNUAL'||id==='$rc_annual') rcPkgs.year = p;
+      else if(t==='MONTHLY'||id==='$rc_monthly') rcPkgs.month = p;
+      else if(t==='THREE_MONTH'||id==='$rc_three_month') rcPkgs.quarter = p;
+      else if(t==='LIFETIME'||id==='$rc_lifetime') rcPkgs.life = p;
+    });
+  }catch(e){ console.log('rc offerings', e); }
+}
+async function rcBuy(plan){
+  const pkg = rcPkgs[plan];
+  if(!pkg){ toast(LANG==='ru'?'Магазин недоступен, попробуйте позже':'Store unavailable, try again later'); return false; }
+  try{ const r = await RC().purchasePackage({ aPackage: pkg }); applyInfo(r.customerInfo); return hasAccess(); }
+  catch(e){ if(!(e && (e.userCancelled || e.code==='1'))) toast(LANG==='ru'?'Покупка не прошла':'Purchase failed'); return false; }
+}
+async function rcRestore(){
+  if(!rcReady){ toast(LANG==='ru'?'Покупки не найдены':'No purchases found'); return false; }
+  try{ const r = await RC().restorePurchases(); applyInfo(r.customerInfo); }catch(e){}
+  if(hasAccess()) return true;
+  toast(LANG==='ru'?'Покупки не найдены':'No purchases found'); return false;
+}
+
 function trialDaysLeft(){
+  if(S.sub.expires) return Math.max(0, Math.ceil((new Date(S.sub.expires)-new Date())/864e5));
   if(!S.sub.trialStart) return 0;
   return Math.max(0, 7 - diffDays(S.sub.trialStart, TODAY));
 }
 function hasAccess(){
-  if(S.sub.status==='paid' || S.sub.status==='lifetime') return true;
+  if(S.sub.status==='lifetime') return true;
+  if(NATIVE) return (S.sub.status==='paid'||S.sub.status==='trial') && (!S.sub.expires || new Date(S.sub.expires) > new Date());
+  if(S.sub.status==='paid') return true;
   if(S.sub.status==='trial') return trialDaysLeft() > 0;
   return false;
 }
@@ -341,6 +397,9 @@ function renderPaywall(expired){
       <b style="font-family:'Fraunces',serif;font-size:19px">${T.pwYearP}</b>
       <span style="position:absolute;top:-9px;left:14px;background:var(--bloom);color:#fff;font-size:8.5px;
         font-weight:700;letter-spacing:.08em;padding:3px 8px;border-radius:99px">${T.pwBest}</span></div>
+    <div class="pick" data-plan="month" style="justify-content:space-between">
+      <span><b>${T.pwM}</b><small>${T.pwMN}</small></span>
+      <b style="font-family:'Fraunces',serif;font-size:19px">${T.pwMP}</b></div>
     <div class="pick" data-plan="quarter" style="justify-content:space-between">
       <span><b>${T.pwQ}</b><small>${T.pwQN}</small></span>
       <b style="font-family:'Fraunces',serif;font-size:19px">${T.pwQP}</b></div>
@@ -356,11 +415,24 @@ function renderPaywall(expired){
     el.classList.add('on'); plan=el.dataset.plan;
     $('pwGo').textContent = plan==='life' ? T.pwLifeP : T.pwCta;
   });
-  $('pwGo').onclick = ()=>{
-    if(plan==='life') buyLifetime(); else startTrial(plan);
-    enterApp();
+  const setPrices = ()=>{
+    const ps = {year:rcPkgs.year, month:rcPkgs.month, quarter:rcPkgs.quarter, life:rcPkgs.life};
+    Object.keys(ps).forEach(k=>{ const p=ps[k]; if(!p||!p.product) return;
+      const el = v.querySelector(`[data-plan="${k}"] > b`); if(el) el.textContent = p.product.priceString; });
   };
-  $('pwRes').onclick = ()=>toast(LANG==='ru'?'Покупки не найдены':'No purchases found');
+  if(NATIVE){ rcLoadPackages().then(setPrices); }
+  let busy=false;
+  $('pwGo').onclick = async ()=>{
+    if(!NATIVE){ if(plan==='life') buyLifetime(); else startTrial(plan); enterApp(); return; }
+    if(busy) return; busy=true; $('pwGo').disabled=true;
+    const ok = await rcBuy(plan);
+    busy=false; $('pwGo').disabled=false;
+    if(ok) enterApp();
+  };
+  $('pwRes').onclick = async ()=>{
+    if(!NATIVE){ toast(LANG==='ru'?'Покупки не найдены':'No purchases found'); return; }
+    if(await rcRestore()) enterApp();
+  };
   show('vpw');
   $('backBtn').classList.remove('on');
   $('barTitle').textContent = '';
@@ -835,7 +907,7 @@ function renderSet(){
       S.sub.status==='lifetime' ? T.subLife : S.sub.status==='trial'
         ? `${T.trialLeft} · ${trialDaysLeft()} ${T.trialDays}` : T.subOn}</div>
       <div class="d">${S.sub.status==='lifetime' ? T.pwLifeN
-        : S.sub.plan==='quarter' ? `${T.pwQ} · ${T.pwQP}` : `${T.pwYear} · ${T.pwYearP}`}</div></div><span>›</span></div>
+        : S.sub.plan==='month' ? `${T.pwM} · ${T.pwMP}` : S.sub.plan==='quarter' ? `${T.pwQ} · ${T.pwQP}` : `${T.pwYear} · ${T.pwYearP}`}</div></div><span>›</span></div>
     <div class="eyebrow">${T.secDel}</div>
     <div class="row" id="del"><div><div class="t" style="color:var(--bloom)">${T.delall}</div><div class="d">${T.delalls}</div></div></div>
     <p class="note">${T.privnote}</p>`;
@@ -958,7 +1030,8 @@ document.addEventListener('touchend', e=>{
   sx = null;
 }, {passive:true});
 
-function boot(){
+async function boot(){
+  if(NATIVE) await Promise.race([rcInit(), new Promise(r=>setTimeout(r,6000))]);
   try{
     if(!S.user.onboarded) renderLang();
     else if(hasAccess()) enterApp();
