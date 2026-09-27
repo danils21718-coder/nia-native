@@ -21,6 +21,15 @@ jobs:
       - name: Install
         run: npm ci
 
+      - name: Build purchases bridge
+        env:
+          RC_ANDROID_KEY: ${{ secrets.RC_ANDROID_KEY }}
+        run: |
+          if [ -z "$RC_ANDROID_KEY" ]; then echo "Secret RC_ANDROID_KEY is missing"; exit 1; fi
+          npm run build:rc
+          sed -i "s|__RC_ANDROID_KEY__|$RC_ANDROID_KEY|" www/app.js
+          grep -c "__RC_ANDROID_KEY__" www/app.js && exit 1 || echo "RevenueCat key set"
+
       - name: Create Android project
         run: |
           npx cap add android
