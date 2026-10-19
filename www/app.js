@@ -580,6 +580,15 @@ ru:{tagline:'цикл, который знаете только вы',
  partadd:'Добавить партнёра', partadds:'Будет видеть только фазу цикла',
  remP:'Скоро менструация', remPs:'За 2 дня, в 20:00', remM:'Приём таблеток', remMs:'Ежедневно, 09:00',
  remD:'Сухой тон уведомлений', remDs:'Только факты, без эмодзи и обращений',
+ remDay:'Как прошёл день', remDayS:'Ежедневно, 20:30', remOvu:'Овуляция и фертильные дни', remOvuS:'За день, в 10:00',
+ nDayT:'Как прошёл ваш день?', nDayB:'Отметьте самочувствие, сон и настроение — это займёт минуту.',
+ nPerT:'Скоро менструация', nPerB:'Ожидается через 2 дня.',
+ nPer0T:'Сегодня ожидается менструация', nPer0B:'Когда начнётся, отметьте первый день — прогноз станет точнее.',
+ nFertT:'Завтра начинаются фертильные дни', nFertB:'Вероятность зачатия повышается.',
+ nOvuT:'Завтра ожидается овуляция', nOvuB:'Самый фертильный день цикла.',
+ nMedT:'Лекарства и витамины', nMedB:'Время принять то, что запланировано.',
+ nRateT:'Нравится Nia?', nRateB:`Оцените приложение в ${STORE_NAME} — это очень нам помогает.`,
+ nDiscT:'Nia', nDiscB:'У вас новое напоминание', nChan:'Напоминания',
  delall:'Удалить всё', delalls:'Сразу, без писем и периода ожидания',
  privnote:'Nia не использует рекламные идентификаторы и не строит профиль пользователя.',
  sheetS:'Отметьте, что чувствуете. Всё необязательно.', save:'Сохранить',
@@ -693,6 +702,15 @@ kk:{tagline:'тек өзіңіз білетін цикл',
  partadd:'Серіктес қосу', partadds:'Тек цикл фазасын көреді',
  remP:'Жақында етеккір', remPs:'2 күн бұрын, 20:00', remM:'Дәрі қабылдау', remMs:'Күн сайын, 09:00',
  remD:'Қарапайым хабарлама үні', remDs:'Тек деректер, эмодзи мен жүгінусіз',
+ remDay:'Күніңіз қалай өтті', remDayS:'Күн сайын, 20:30', remOvu:'Овуляция және құнарлы күндер', remOvuS:'Бір күн бұрын, 10:00',
+ nDayT:'Күніңіз қалай өтті?', nDayB:'Көңіл күйіңізді, ұйқыңызды белгілеңіз — бір минут қана.',
+ nPerT:'Жақында етеккір', nPerB:'2 күннен кейін күтіледі.',
+ nPer0T:'Бүгін етеккір күтіледі', nPer0B:'Басталғанда бірінші күнін белгілеңіз — болжам дәлірек болады.',
+ nFertT:'Ертең құнарлы күндер басталады', nFertB:'Жүкті болу ықтималдығы артады.',
+ nOvuT:'Ертең овуляция күтіледі', nOvuB:'Циклдің ең құнарлы күні.',
+ nMedT:'Дәрілер мен дәрумендер', nMedB:'Жоспарланғанды қабылдайтын уақыт.',
+ nRateT:'Nia ұнай ма?', nRateB:`Қолданбаны ${STORE_NAME} дүкенінде бағалаңыз — бұл бізге көп көмектеседі.`,
+ nDiscT:'Nia', nDiscB:'Сізде жаңа еске салғыш бар', nChan:'Еске салғыштар',
  delall:'Бәрін өшіру', delalls:'Бірден, хатсыз әрі күтусіз',
  privnote:'Nia жарнамалық идентификаторларды қолданбайды және пайдаланушы профилін құрмайды.',
  sheetS:'Сезімдеріңізді белгілеңіз. Бәрі міндетті емес.', save:'Сақтау',
@@ -806,6 +824,15 @@ en:{tagline:'a cycle only you can see',
  partadd:'Add a partner', partadds:'They will only see your cycle phase',
  remP:'Period coming up', remPs:'2 days before, 8:00 PM', remM:'Medication', remMs:'Daily, 9:00 AM',
  remD:'Plain notification tone', remDs:'Facts only, no emoji, no nicknames',
+ remDay:'How was your day', remDayS:'Daily, 8:30 PM', remOvu:'Ovulation and fertile days', remOvuS:'A day before, 10:00 AM',
+ nDayT:'How was your day?', nDayB:'Log your mood, sleep and how you feel — it takes a minute.',
+ nPerT:'Period coming up', nPerB:'Expected in 2 days.',
+ nPer0T:'Period expected today', nPer0B:'When it starts, log the first day to sharpen your prediction.',
+ nFertT:'Fertile days start tomorrow', nFertB:'Your chance of conception is rising.',
+ nOvuT:'Ovulation expected tomorrow', nOvuB:'The most fertile day of your cycle.',
+ nMedT:'Medication and vitamins', nMedB:'Time to take what you planned.',
+ nRateT:'Enjoying Nia?', nRateB:`Rate us on the ${STORE_NAME} — it really helps.`,
+ nDiscT:'Nia', nDiscB:'You have a new reminder', nChan:'Reminders',
  delall:'Delete everything', delalls:'Immediately, no emails, no waiting period',
  privnote:'Nia uses no advertising identifiers and builds no profile of you.',
  sheetS:'Note how you feel. Nothing is required.', save:'Save',
@@ -919,6 +946,15 @@ es:{tagline:'un ciclo que solo tú conoces',
  partadd:'Añadir pareja', partadds:'Solo verá la fase de tu ciclo',
  remP:'La regla se acerca', remPs:'2 días antes, a las 20:00', remM:'Pastillas', remMs:'A diario, 09:00',
  remD:'Tono sobrio en avisos', remDs:'Solo datos, sin emojis ni apodos',
+ remDay:'Cómo fue tu día', remDayS:'A diario, 20:30', remOvu:'Ovulación y días fértiles', remOvuS:'Un día antes, 10:00',
+ nDayT:'¿Cómo fue tu día?', nDayB:'Registra tu ánimo, sueño y cómo te sientes: te llevará un minuto.',
+ nPerT:'La regla se acerca', nPerB:'Prevista en 2 días.',
+ nPer0T:'Hoy se espera la regla', nPer0B:'Cuando empiece, registra el primer día para afinar el pronóstico.',
+ nFertT:'Mañana empiezan los días fértiles', nFertB:'Aumenta la probabilidad de concepción.',
+ nOvuT:'Mañana se espera la ovulación', nOvuB:'El día más fértil del ciclo.',
+ nMedT:'Medicamentos y vitaminas', nMedB:'Es hora de tomar lo que tenías previsto.',
+ nRateT:'¿Te gusta Nia?', nRateB:`Valóranos en ${STORE_NAME}: nos ayuda muchísimo.`,
+ nDiscT:'Nia', nDiscB:'Tienes un nuevo recordatorio', nChan:'Recordatorios',
  delall:'Borrar todo', delalls:'Al instante, sin correos ni periodo de espera',
  privnote:'Nia no usa identificadores publicitarios ni crea perfiles de usuario.',
  sheetS:'Anota cómo te sientes. Nada es obligatorio.', save:'Guardar',
@@ -985,7 +1021,8 @@ const blank = () => ({
   logs:{},          // 'YYYY-MM-DD': {flow,mood[],pain[],energy,sleep,bbt}
   sub:{status:'none',trialStart:null,plan:null,expires:null,mgmt:null},
   settings:{backup:true,lock:true,reminders:true,discreet:false,plainTone:true,
-            remPeriod:true,remMed:true,lastBackup:null,invites:0}
+            remPeriod:true,remMed:true,remDay:true,remOvu:true,lastBackup:null,invites:0,
+            installDate:null,notifAsked:false}
 });
 let S = load();
 applyDesign();
@@ -1166,6 +1203,74 @@ function hasAccess(){
 // только для веб-версии (в браузере), в приложении покупка идёт через магазин
 function startTrial(plan){ S.sub.status='trial'; S.sub.trialStart=TODAY; S.sub.plan=plan||'year'; save(); }
 function buyLifetime(){ S.sub.status='lifetime'; S.sub.plan='life'; save(); }
+
+/* ================= УВЕДОМЛЕНИЯ (на телефоне, без сервера) ================= */
+const LN = () => window.NiaNotif;
+const NBASE = 7000;            // id наших уведомлений: 7000…7999
+let notifBound = false, pendingTap = null;
+const REVIEW_URL = PLATFORM==='ios' ? 'https://apps.apple.com/app/id6818955026?action=write-review' : STORE_URL;
+function atTime(ds,h,m){ const d = parse(ds); d.setHours(h,m,0,0); return d; }
+function buildNotifs(){
+  const out = [], now = new Date(), st = S.settings, p = predict();
+  const em = st.plainTone ? {} : {day:'🌙 ',period:'🩸 ',fert:'🌱 ',ovu:'🌼 ',med:'💊 ',rate:'⭐ '};
+  let id = NBASE;
+  const add = (at, title, body, kind)=>{
+    if(!(at > now)) return;
+    const n = { id:id++, title: st.discreet ? T.nDiscT : (em[kind]||'')+title,
+      body: st.discreet ? T.nDiscB : body, schedule:{ at, allowWhileIdle:true }, extra:{ kind } };
+    if(PLATFORM==='android') n.channelId = 'nia';
+    out.push(n);
+  };
+  // «Как прошёл день?» — 14 дней вперёд, кроме уже заполненных дней
+  if(st.remDay) for(let i=0;i<14;i++){ const ds = addDays(TODAY,i); if(!S.logs[ds]) add(atTime(ds,20,30), T.nDayT, T.nDayB, 'day'); }
+  // лекарства — ежедневно в 9:00, если выбран этот пункт
+  if(st.remMed && S.user.metrics.includes('med')) for(let i=0;i<14;i++) add(atTime(addDays(TODAY,i),9,0), T.nMedT, T.nMedB, 'med');
+  if(p && !p.late){
+    for(let k=0;k<3;k++){                       // текущий и два следующих цикла
+      const nextP = addDays(p.nextP, k*p.len), ovu = addDays(p.ovu, k*p.len);
+      if(st.remPeriod){
+        add(atTime(addDays(nextP,-2),20,0), T.nPerT, T.nPerB, 'period');
+        add(atTime(nextP,9,0), T.nPer0T, T.nPer0B, 'period');
+      }
+      if(st.remOvu && S.user.bc!=='yes'){
+        add(atTime(addDays(ovu,-6),10,0), T.nFertT, T.nFertB, 'fert');
+        add(atTime(addDays(ovu,-1),10,0), T.nOvuT, T.nOvuB, 'ovu');
+      }
+    }
+  }
+  // просьба оценить — один раз, через 14 дней после установки
+  if(st.installDate) add(atTime(addDays(st.installDate,14),19,0), T.nRateT, T.nRateB, 'rate');
+  return out;
+}
+function onNotifTap(kind){
+  if(kind==='rate'){ try{ window.open(REVIEW_URL,'_blank'); }catch(e){} return; }
+  if(!inApp){ pendingTap = kind; return; }
+  goTab(0);
+  if(kind==='day' || kind==='med') openSheet(TODAY);
+}
+async function notifSync(ask){
+  if(!NATIVE || !LN()) return;
+  try{
+    if(!notifBound){
+      notifBound = true;
+      if(PLATFORM==='android') await LN().createChannel({ id:'nia', name:T.nChan, importance:4, visibility:0 });
+      LN().addListener('localNotificationActionPerformed', a=>{
+        const x = a && a.notification && a.notification.extra; onNotifTap(x && x.kind); });
+    }
+    const pend = await LN().getPending();
+    const old = (pend.notifications||[]).filter(n=>n.id>=NBASE && n.id<NBASE+1000).map(n=>({id:n.id}));
+    if(old.length) await LN().cancel({ notifications: old });
+    if(!S.user.onboarded || !S.settings.reminders) return;
+    let perm = await LN().checkPermissions();
+    if(perm.display!=='granted'){
+      if(!ask) return;
+      perm = await LN().requestPermissions();
+      if(perm.display!=='granted') return;
+    }
+    const list = buildNotifs();
+    if(list.length) await LN().schedule({ notifications: list });
+  }catch(e){ console.log('notif', e); }
+}
 
 /* ================= ВСПОМОГАТЕЛЬНОЕ ================= */
 const $ = id => document.getElementById(id);
@@ -1406,13 +1511,20 @@ function step(n){ renderOnb(n); }
 async function finish(){
   S.user.onboarded = true;
   if(S.settings.backup) S.settings.lastBackup = new Date().toISOString();
+  if(!S.settings.installDate) S.settings.installDate = TODAY;
+  S.settings.notifAsked = true;
   save();
+  notifSync(true);
   if(NATIVE) await rcRefresh();   // подписка могла быть оформлена раньше (например, после «Удалить всё»)
   if(hasAccess()) enterApp(); else renderPaywall(false);
 }
 function enterApp(){
   inApp = true; document.body.classList.add('app');
   renderNav(); goTab(0);
+  if(!S.settings.installDate){ S.settings.installDate = TODAY; save(); }
+  const ask = !S.settings.notifAsked; S.settings.notifAsked = true; save();
+  notifSync(ask);
+  if(pendingTap){ const k = pendingTap; pendingTap = null; onNotifTap(k); }
 }
 
 /* ================= НАВИГАЦИЯ ================= */
@@ -1623,6 +1735,8 @@ function renderSet(){
     <div class="eyebrow">${T.secRem}</div>
     ${tog('remPeriod', T.remP, T.remPs)}
     ${tog('remMed', T.remM, T.remMs)}
+    ${tog('remDay', T.remDay, T.remDayS)}
+    ${S.user.bc!=='yes' ? tog('remOvu', T.remOvu, T.remOvuS) : ''}
     ${tog('plainTone', T.remD, T.remDs)}
     <div class="eyebrow">${T.secSub}</div>
     ${subRow()}
@@ -1633,6 +1747,7 @@ function renderSet(){
     const k = r.dataset.s; S.settings[k] = !S.settings[k];
     if(k==='backup' && S.settings[k]) S.settings.lastBackup = new Date().toISOString();
     r.querySelector('.toggle').classList.toggle('on', S.settings[k]); save();
+    if(/^rem|^discreet|^plainTone/.test(k)) notifSync(S.settings[k]);
   });
   $('lng').onclick = openLangSheet;
   $('look').onclick = openLookSheet;
@@ -1652,6 +1767,7 @@ function renderSet(){
     try{ localStorage.removeItem(KEY); }catch(e){}
     S = blank(); applyDesign();
     document.body.classList.remove('app'); inApp = false; toast(T.deleted); step(0);
+    notifSync(false);
     if(NATIVE) await rcRefresh();   // вернуть статус подписки из магазина
   } };
 }
@@ -1661,7 +1777,7 @@ function openLangSheet(){
     <h1 style="font-size:21px;margin-bottom:14px">${T.langT}</h1>
     ${LANGS.map(([k,n,c])=>`<div class="pick ${LANG===k?'on':''}" data-l="${k}"><span class="ic" style="font-size:12px;font-weight:700">${c}</span><span><b>${n}</b></span></div>`).join('')}`;
   $('sheet').querySelectorAll('[data-l]').forEach(el=>el.onclick=()=>{
-    setLang(el.dataset.l); closeSheet(); renderNav(); renderSet();
+    setLang(el.dataset.l); closeSheet(); renderNav(); renderSet(); notifSync(false);
     $('barTitle').textContent = T.set;
   });
   $('sheet').classList.add('on'); $('scrim').classList.add('on');
@@ -1685,7 +1801,7 @@ function saveDay(){
   if(draft.flow>=2) markPeriod(sheetDate);
   else if(draft.flow===0 || (draft.flow==null && prevFlow>=2)) unmarkPeriod(sheetDate);
 
-  save(); closeSheet(); toast(T.saved);
+  save(); closeSheet(); toast(T.saved); notifSync(false);
   if(tab===0) renderHome(); else if(tab===1) renderCal(); else if(tab===2) renderIns();
 }
 function markPeriod(d){
@@ -1729,6 +1845,7 @@ document.addEventListener('visibilitychange', async ()=>{
   const dayChanged = t!==TODAY;
   TODAY = t;
   if(NATIVE) await rcRefresh();
+  if(inApp) notifSync(false);
   if(inApp && !$('sheet').classList.contains('on') && !$('vpw').classList.contains('active')){
     if(!hasAccess()){ document.body.classList.remove('app'); inApp=false; renderPaywall(true); }
     else if(dayChanged) goTab(tab);
