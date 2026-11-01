@@ -1,5 +1,5 @@
 /* Nia — движок. Данные пользователя хранятся только на телефоне.
-   Сетевые запросы: шрифты Google Fonts и RevenueCat (статус покупки). */
+   Сетевые запросы: шрифты Google Fonts, RevenueCat (статус покупки), на Android в бесплатной версии — реклама Google AdMob. */
 'use strict';
 
 /* ================= ЛОКАЛИЗАЦИЯ (берётся из системы) ================= */
@@ -10,8 +10,10 @@ const STORE_URL = PLATFORM==='ios'
   ? 'https://apps.apple.com/app/id6818955026'
   : 'https://play.google.com/store/apps/details?id=online.forwardip.nia';
 const STORE_NAME = PLATFORM==='ios' ? 'App Store' : 'Google Play';
+// Android: приложение бесплатное с рекламой, подписка убирает рекламу. iOS не меняется.
+const ADS = PLATFORM==='android';
 // язык: сохранённый выбор → иначе язык системы → иначе английский
-const SUPPORTED = ['ru','kk','en','es'];
+const SUPPORTED = ['ru','kk','en','es','fr','de','ar'];
 let LANG = (()=>{ try{ const v=localStorage.getItem('nia.lang'); if(SUPPORTED.indexOf(v)>=0) return v; }catch(e){}
   const n = (navigator.language||'en').toLowerCase().slice(0,2);
   return SUPPORTED.indexOf(n)>=0 ? n : 'en'; })();
@@ -20,15 +22,19 @@ function buildDict(){
   CLOUD = IOS ? 'iCloud' : CLOUD_A[LANG];
   BIO   = IOS ? 'Face ID' : BIO_A[LANG];
   T = DICT()[LANG]; DT = DZ[LANG];
-  try{ document.documentElement.lang = LANG; }catch(e){}
+  try{ document.documentElement.lang = LANG; document.documentElement.dir = LANG==='ar' ? 'rtl' : 'ltr'; }catch(e){}
 }
 function setLang(l){ if(SUPPORTED.indexOf(l)<0) return; LANG = l; try{ localStorage.setItem('nia.lang', l); }catch(e){} buildDict(); }
 const ruPl = (n, f) => { const a = n % 10, b = n % 100;
   return f[(a===1 && b!==11) ? 0 : (a>=2 && a<=4 && (b<10 || b>=20)) ? 1 : 2]; };
 const cap1 = s => s.charAt(0).toUpperCase() + s.slice(1);
-const LANGS = [['ru','Русский','RU'],['kk','Қазақша','KZ'],['en','English','EN'],['es','Español','ES']];
-const CLOUD_A = {ru:'Google Диск', kk:'Google Drive', en:'Google Drive', es:'Google Drive'};
-const BIO_A = {ru:'отпечатку пальца', kk:'саусақ ізі', en:'fingerprint', es:'huella dactilar'};
+const LANGS = [['ru','Русский','RU'],['kk','Қазақша','KZ'],['en','English','EN'],['es','Español','ES'],['fr','Français','FR'],['de','Deutsch','DE'],['ar','العربية','AR']];
+const CLOUD_A = {ru:'Google Диск', kk:'Google Drive', en:'Google Drive', es:'Google Drive', fr:'Google Drive', de:'Google Drive', ar:'Google Drive'};
+const BIO_A = {ru:'отпечатку пальца', kk:'саусақ ізі', en:'fingerprint', es:'huella dactilar', fr:'empreinte digitale', de:'Fingerabdruck', ar:'بصمة الإصبع'};
+// арабские числительные: 1 يوم واحد, 2 يومان, 3–10 أيام, 11+ يومًا
+const arDayWord = n => { const k=n%100; return n===1?'يوم':n===2?'يومان':(k>=3&&k<=10)?'أيام':'يومًا'; };
+const arDays = n => n===1?'يوم واحد':n===2?'يومان':`${n} ${arDayWord(n)}`;
+const arCycles = n => { const k=n%100; return n===1?'دورة واحدة':n===2?'دورتان':(k>=3&&k<=10)?`${n} دورات`:`${n} دورة`; };
 /* ================= ОФОРМЛЕНИЯ (7 интерфейсов) ================= */
 const DESIGNS = ['A','B','C','D','E','F','G'];
 const DZ = {
@@ -71,7 +77,37 @@ const DZ = {
    tapDay:'Toca un punto para abrir ese día', qOf:(i,n)=>`Pregunta ${i} de ${n}`, back:'Atrás',
    todayIs:n=>`Hoy es el día ${n} de tu ciclo.`, chatHow:'¿Registramos tu día?',
    leafS:'Un día del ciclo, una hoja', untilLbl:'Hasta la regla', daysW:n=>n===1?'día':'días',
-   rowHint:'Cada fila es un ciclo', wk:'Sem', thisCycle:'Este ciclo', noHome:'Toca para registrar el primer día de tu regla'}
+   rowHint:'Cada fila es un ciclo', wk:'Sem', thisCycle:'Este ciclo', noHome:'Toca para registrar el primer día de tu regla'},
+ fr:{q:s=>`${s} ?`,A:'Ruban',B:'Orbite',C:'Échelle',D:'Goutte',E:'Compteur',F:'Pousse',G:'Dialogue',
+   As:'Un ruban de jours et ce qui arrive',Bs:'Un anneau sombre de ton cycle',Cs:'Une échelle et des tuiles vives',Ds:'Une goutte qui se remplit au fil du cycle',
+   Es:'Un grand compteur de jours',Fs:'Une plante qui pousse chaque jour',Gs:'Nia t’écrit des messages',
+   secLook:'Apparence', lookT:'Choisis un style', lookS:'Change en un geste. Tes données restent.',
+   dayNth:n=>`Jour ${n}`, untilP:n=>`Règles dans ${n} jour${n>1?'s':''}`,
+   dayOf:(n,l)=>`Jour ${n} sur ${l}`, evFert:'Début des jours fertiles', cycFill:p=>`${p} % du cycle`,
+   tapDay:'Touche un point pour ouvrir ce jour', qOf:(i,n)=>`Question ${i} sur ${n}`, back:'Retour',
+   todayIs:n=>`Aujourd’hui, c’est le jour ${n} de ton cycle.`, chatHow:'On note ta journée ?',
+   leafS:'Un jour du cycle, une feuille', untilLbl:'Avant tes règles', daysW:n=>n>1?'jours':'jour',
+   rowHint:'Chaque ligne est un cycle', wk:'Sem', thisCycle:'Ce cycle', noHome:'Touche pour noter le premier jour de tes règles'},
+ de:{q:s=>`${s}?`,A:'Band',B:'Orbit',C:'Skala',D:'Tropfen',E:'Zähler',F:'Spross',G:'Dialog',
+   As:'Ein Band aus Tagen und was als Nächstes kommt',Bs:'Ein dunkler Ring deines Zyklus',Cs:'Eine Skala und helle Kacheln',Ds:'Ein Tropfen, der sich im Zyklus füllt',
+   Es:'Ein großer Tageszähler',Fs:'Eine Pflanze, die jeden Tag wächst',Gs:'Nia schreibt dir Nachrichten',
+   secLook:'Aussehen', lookT:'Wähle einen Stil', lookS:'Mit einem Tippen wechseln. Deine Einträge bleiben.',
+   dayNth:n=>`Tag ${n}`, untilP:n=>`Periode in ${n} ${n===1?'Tag':'Tagen'}`,
+   dayOf:(n,l)=>`Tag ${n} von ${l}`, evFert:'Fruchtbare Tage beginnen', cycFill:p=>`${p} % des Zyklus`,
+   tapDay:'Tippe auf einen Punkt, um den Tag zu öffnen', qOf:(i,n)=>`Frage ${i} von ${n}`, back:'Zurück',
+   todayIs:n=>`Heute ist Tag ${n} deines Zyklus.`, chatHow:'Möchtest du heute eintragen?',
+   leafS:'Ein Tag im Zyklus, ein Blatt', untilLbl:'Bis zur Periode', daysW:n=>n===1?'Tag':'Tage',
+   rowHint:'Jede Zeile ist ein Zyklus', wk:'KW', thisCycle:'Dieser Zyklus', noHome:'Tippe, um den ersten Tag deiner Periode einzutragen'},
+ ar:{q:s=>`${s}؟`,A:'شريط',B:'مدار',C:'مقياس',D:'قطرة',E:'عدّاد',F:'نبتة',G:'محادثة',
+   As:'شريط من الأيام وما يأتي بعدها',Bs:'حلقة داكنة لدورتك',Cs:'مقياس ومربعات زاهية',Ds:'قطرة تمتلئ مع تقدّم الدورة',
+   Es:'عدّاد أيام كبير',Fs:'نبتة تنمو كل يوم',Gs:'نيا تكتب لك رسائل',
+   secLook:'المظهر', lookT:'اختاري مظهرًا', lookS:'غيّريه بلمسة واحدة. تبقى بياناتك كما هي.',
+   dayNth:n=>`اليوم ${n}`, untilP:n=>`الدورة بعد ${arDays(n)}`,
+   dayOf:(n,l)=>`اليوم ${n} من ${l}`, evFert:'بداية الأيام الخصبة', cycFill:p=>`${p}% من الدورة`,
+   tapDay:'المسي نقطة لفتح ذلك اليوم', qOf:(i,n)=>`السؤال ${i} من ${n}`, back:'رجوع',
+   todayIs:n=>`اليوم هو اليوم ${n} من دورتك.`, chatHow:'هل نسجّل يومك؟',
+   leafS:'يوم من الدورة، ورقة واحدة', untilLbl:'حتى الدورة', daysW:n=>arDayWord(n),
+   rowHint:'كل صف دورة واحدة', wk:'أسبوع', thisCycle:'هذه الدورة', noHome:'المسي لتسجيل أول يوم من دورتك'}
 };
 // палитры: canvas, surface, ink, soft, period, period-soft, fertile, fertile-soft, mist, line, cta, cta-text
 const PAL = {
@@ -253,7 +289,7 @@ function homeCtx(){
     if(p.ovu>=TODAY) events.push([p.ovu, T.ph_ovu, 'var(--sage)']);
   }
   events.push([p.nextP, p.irregular ? `${T.ph_period}, ±${Math.max(2,Math.round(p.sd))}` : T.ph_period, 'var(--bloom)']);
-  const greet = S.user.name ? `${T.hi}, ${esc(S.user.name)}` : T.hi;
+  const greet = S.user.name ? `${T.hi}${LANG==="ar"?"،":","} ${esc(S.user.name)}` : T.hi;
   return {p,phase,phLbl,title,body,day,len,until,untilTxt,events,greet};
 }
 const trialBar = ()=> S.sub.status==='trial'
@@ -267,7 +303,7 @@ function bindDays(root){ root.querySelectorAll('[data-d]').forEach(e=>e.onclick=
 function renderHome(){
   const c = homeCtx(), v = $('home');
   if(!c){
-    v.innerHTML = `<div class="xh">${S.user.name?`${T.hi}, ${esc(S.user.name)}`:T.hi}</div><p class="xs">${T.dateLong(new Date())}</p>
+    v.innerHTML = `<div class="xh">${S.user.name?`${T.hi}${LANG==="ar"?"،":","} ${esc(S.user.name)}`:T.hi}</div><p class="xs">${T.dateLong(new Date())}</p>
       <div class="tile p" id="hLog" style="margin-top:22px;padding:26px 20px"><b>${T.nodata}</b><small>${DT.noHome}</small></div>`;
     $('hLog').onclick = ()=>openSheet(TODAY); return;
   }
@@ -1008,8 +1044,420 @@ es:{tagline:'un ciclo que solo tú conoces',
  repFoot:'Generado por Nia en el dispositivo de la usuaria. Son registros de autoobservación, no una valoración médica.',
  notifyOk:'Te avisaremos en el lanzamiento', bkSaved:'Copia guardada',
  invTxt:u=>`Prueba Nia: un calendario menstrual que guarda tus datos solo en tu teléfono. ${u}`,
- errT:'Algo salió mal', errBtn:'Empezar de nuevo', locale:'es-ES'}
+ errT:'Algo salió mal', errBtn:'Empezar de nuevo', locale:'es-ES'},
+fr:{tagline:'un cycle que toi seule connais',
+ hello:'Salut, je suis Nia', hello2:'Configurons ton calendrier',
+ w1s:`Tes données restent sur ton téléphone et dans ton ${CLOUD} personnel. Ni les régies publicitaires ni nous n’y avons accès.`,
+ start:'Commencer', restore:'J’ai déjà une sauvegarde', noreg:'Environ une minute. Sans inscription ni e-mail.',
+ next:'Suivant', skip:'Passer', done:'C’est prêt',
+ q1:'Pourquoi es-tu ici ?', q1s:'Cela définit ce que nous affichons sur l’écran principal.',
+ g1:'Suivre mon cycle', g1s:'Savoir quand arrivent les règles et le SPM',
+ g2:'Je veux un bébé', g2s:'Fenêtre de fertilité et ovulation précises',
+ g3:'Éviter une grossesse', g3s:'Jours à faible probabilité de conception',
+ g4:'Comprendre mes symptômes', g4s:'Douleur, humeur, sommeil et leur lien avec ton cycle',
+ q2:'Comment t’appeler ?', q2s:'Ton prénom reste sur ce téléphone. Tu peux passer.',
+ nameph:'Prénom ou surnom', byear:'Année de naissance',
+ byears:'Cela nous aide à savoir ce qui est normal : un cycle à 17 ans n’est pas le même qu’à 45 ans. Nous ne demandons jamais la date complète.',
+ byearl:'année de naissance',
+ q3:'Quand tes dernières règles ont-elles commencé ?', q3s:'Le point de départ de la première prévision. Tu pourras corriger dans le calendrier.',
+ dunno:'Je ne m’en souviens pas', dunnos:'Nous partirons du premier jour de règles que tu noteras',
+ q4:'Durée du cycle et des règles', q4s:'Pas sûre ? Garde les valeurs par défaut. Après deux cycles, nous ajusterons nous-mêmes.',
+ cyclel:'jours par cycle', periodl:'jours de règles',
+ q5:'Ton cycle est-il régulier ?', q5s:'Cela change l’algorithme. S’il varie, nous affichons une plage plutôt qu’une date.',
+ r1:'Régulier', r1s:'Les cycles varient de 3 jours maximum',
+ r2:'Un peu variable', r2s:'Les cycles varient d’une semaine maximum',
+ r3:'Irrégulier', r3s:'Très variable, les retards sont normaux pour moi',
+ r4:'Je ne sais pas', r4s:'Nous le déduirons de tes données',
+ bc:'Contraception hormonale', bcn:'Je n’en prends pas', bcy:'J’en prends', bcys:'Alors nous ne prévoirons pas l’ovulation',
+ q6:'Que veux-tu suivre ?', q6s:'Choisis ce qui apparaît sur l’écran principal. Le reste est masqué. Modifiable plus tard.',
+ m_mood:'Humeur', m_pain:'Douleurs et crampes', m_disch:'Pertes', m_sleep:'Sommeil',
+ m_energy:'Énergie', m_bbt:'Température basale', m_med:'Médicaments et vitamines',
+ q7:'Où sont tes données', q7s:'Pour ne rien perdre en changeant de téléphone.',
+ bk:`Sauvegarde dans ton ${CLOUD}`, bks:'Chiffrée sur ton téléphone avant l’envoi. Nous ne pouvons pas la lire',
+ lock:`Déverrouillage par ${BIO}`, locks:'Verrouillée si quelqu’un d’autre prend ton téléphone',
+ rem:'Rappels', rems:'Règles et médicaments. Tu choisis le ton',
+ nope:'Ce que nous ne faisons jamais', nopes:'Pas de publicité, aucun partage avec des tiers, ni e-mail ni téléphone, aucun profil de toi.',
+ delnote:'Tu peux tout supprimer à tout moment, en un bouton.',
+ hi:'Salut', dayof:'jour du cycle', logday:'Noter la journée', marktoday:'Noter aujourd’hui',
+ ph_period:'Règles', ph_fert:'Fenêtre fertile', ph_ovu:'Ovulation', ph_luteal:'Phase lutéale', ph_foll:'Phase folliculaire',
+ nodata:'Note ton premier jour de règles', nodatas:'Ensuite, nous établirons ta prévision.',
+ cal:'Calendrier', ins:'Analyses', near:'À tes côtés', more:'Plus', today:'Aujourd’hui',
+ hist:'Historique des cycles', noHist:'Pas encore de cycle terminé', allfree:'Tout ton historique, sans limite de durée.',
+ cyclen:'Durée du cycle', avgc:'Cycle moyen', spread:'Variation', avgp:'Règles en moyenne', lut:'Phase lutéale',
+ days:'jours', daysx:'jours', patterns:'Tendances', nopat:'Les tendances apparaissent après deux ou trois cycles.',
+ pdf:'Rapport pour le médecin · PDF', csv:'Exporter les données · CSV',
+ expnote:'Le fichier est créé sur ton téléphone. Tu décides qui le voit.',
+ soon:'Bientôt', nearT:'À tes côtés', nearS:'Une conversation calme sur ce que vivent ton corps et ton humeur. Sans diagnostic ni jugement.',
+ n1:'Explique simplement', n1s:'Pourquoi ton cycle a bougé, ce qu’est la phase lutéale, à quoi t’attendre cette semaine.',
+ n2:'Repère les liens', n2s:'Relie ton sommeil, tes douleurs et ton humeur à la phase du cycle.',
+ n3:'Prépare le rendez-vous', n3s:'Rassemble des questions à partir de ton historique et les joint au rapport.',
+ notifyme:'Me prévenir au lancement', neardis:'Un assistant d’information, pas un médecin. Les symptômes inquiétants sont orientés vers un professionnel.',
+ set:'Réglages', setS:'Tout est sous ton contrôle',
+ secData:'Données et sauvegarde', secPriv:'Confidentialité', secInv:'Inviter une amie', secPart:'Partenaire', secRem:'Rappels', secSub:'Abonnement', secDel:'Données',
+ bkon:'activée', bklast:'Dernière sauvegarde', bkrestore:'Restaurer sur un nouveau téléphone',
+ bkrestores:`Installe Nia et connecte-toi au même ${CLOUD}`,
+ bkfile:'Enregistrer une copie dans un fichier', bkfiles:'Si tu veux la garder à part',
+ discreet:'Mode discret', discreets:'Nom et icône neutres dans les notifications',
+ invT:'Parle de Nia à une amie', invS:`L’invitation n’est qu’un lien ${STORE_NAME} : nous ne lisons jamais tes contacts.`,
+ invcopy:'Copier le lien', invshare:'Partager',
+ partadd:'Ajouter un partenaire', partadds:'Il ne verra que la phase de ton cycle',
+ remP:'Règles bientôt', remPs:'2 jours avant, 20 h 00', remM:'Médicaments', remMs:'Chaque jour, 9 h 00',
+ remD:'Ton neutre des notifications', remDs:'Des faits, sans emoji ni surnoms',
+ remDay:'Comment s’est passée ta journée', remDayS:'Chaque jour, 20 h 30', remOvu:'Ovulation et jours fertiles', remOvuS:'La veille, 10 h 00',
+ nDayT:'Comment s’est passée ta journée ?', nDayB:'Note ton humeur, ton sommeil et ton ressenti — une minute suffit.',
+ nPerT:'Règles bientôt', nPerB:'Attendues dans 2 jours.',
+ nPer0T:'Règles attendues aujourd’hui', nPer0B:'Quand elles commencent, note le premier jour pour affiner la prévision.',
+ nFertT:'Les jours fertiles commencent demain', nFertB:'La probabilité de conception augmente.',
+ nOvuT:'Ovulation attendue demain', nOvuB:'Le jour le plus fertile du cycle.',
+ nMedT:'Médicaments et vitamines', nMedB:'C’est l’heure de prendre ce que tu as prévu.',
+ nRateT:'Tu aimes Nia ?', nRateB:`Note l’app sur ${STORE_NAME} — ça nous aide beaucoup.`,
+ nDiscT:'Nia', nDiscB:'Tu as un nouveau rappel', nChan:'Rappels',
+ delall:'Tout supprimer', delalls:'Immédiatement, sans e-mail ni délai d’attente',
+ privnote:'Nia n’utilise aucun identifiant publicitaire et ne crée aucun profil de toi.',
+ sheetS:'Note ce que tu ressens. Rien n’est obligatoire.', save:'Enregistrer',
+ f0:'Aucun', f1:'Spotting', f2:'Léger', f3:'Moyen', f4:'Abondant',
+ mo1:'Calme', mo2:'Joyeuse', mo3:'Anxieuse', mo4:'Irritable', mo5:'Déprimée',
+ pa1:'Crampes', pa2:'Tête', pa3:'Bas du dos', pa4:'Poitrine', pa5:'Digestion',
+ en1:'Très faible', en2:'Faible', en3:'Normale', en4:'Élevée',
+ sleeph:'Heures de sommeil', flow:'Règles', mood:'Humeur', pain:'Douleur', energy:'Énergie',
+ saved:'Journée enregistrée', copied:'Lien copié', deleted:'Toutes les données ont été supprimées',
+ confirmDel:'Supprimer toutes les données ? C’est irréversible.',
+ predP:'Règles attendues', predO:'Ovulation attendue', predRange:'Jours fertiles',
+ lateT:n=>`${n} jour${n>1?'s':''} de retard`, lateS:'Quand tes règles commencent, note le premier jour et nous recalculerons.',
+ accHi:'Prévision basée sur tes données.', accLow:'Ton cycle varie — nous affichons une plage. C’est plus honnête qu’une erreur d’une semaine.',
+ accNew:'La précision s’améliore après deux ou trois cycles.',
+ bcNote:'Tu prends une contraception hormonale — nous ne prévoyons pas l’ovulation.',
+ mon:['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'],
+ monN:['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'],
+ monS:['janv.','févr.','mars','avr.','mai','juin','juil.','août','sept.','oct.','nov.','déc.'],
+ wd:['lun','mar','mer','jeu','ven','sam','dim'],
+ wdL:['dimanche','lundi','mardi','mercredi','jeudi','vendredi','samedi'],
+ fmt:(d,m)=>`${d} ${T.mon[m]}`,
+ dateLong:d=>cap1(`${T.wdL[d.getDay()]} ${d.getDate()} ${T.mon[d.getMonth()]}`),
+ hdr:['Date','Jour du cycle','Règles','Humeur','Douleur','Sommeil','Énergie','Température'],
+ repT:'Rapport pour le médecin', repGen:'Généré le',
+ pwT:'1 mois gratuit', pwS:'Accès complet. Annulable à tout moment — nous te prévenons 2 jours avant le paiement.',
+ pw1:'Prévisions du cycle et de l’ovulation', pw1s:'Fonctionne aussi avec un cycle irrégulier',
+ pw2:'Tout l’historique et les analyses', pw2s:'Sans limite de durée',
+ pw3:'Rapport pour le médecin', pw3s:'PDF et CSV, créés sur ton téléphone',
+ pw4:'Tes données restent à toi', pw4s:'Pas de publicité, rien n’est partagé',
+ pwM:'Mensuel', pwMP:'2,99 $', pwMN:'Annulable à tout moment',
+ pwQ:'3 mois', pwQP:'3,99 $', pwQN:'1,33 $ par mois',
+ pwYear:'Annuel', pwYearP:'15,99 $', pwYearN:'1,33 $ par mois · le plus avantageux', pwBest:'TOP',
+ pwLife:'À vie', pwLifeP:'34,99 $', pwLifeN:'Paiement unique, sans abonnement',
+ pwCta:'Essayer 1 mois gratuit', pwRestore:'Restaurer l’achat', lnkPriv:'Politique de confidentialité', lnkTerms:'Conditions d’utilisation (EULA)',
+ pwNoteIos:'Facturé après 1 mois sauf annulation. Gère l’abonnement dans les réglages de ton identifiant Apple.',
+ pwNoteAnd:'Facturé après 1 mois sauf annulation. Gère l’abonnement dans Google Play.',
+ pwNoteLife:'Paiement unique. Sans abonnement ni prélèvement automatique.',
+ trialLeft:'Essai', trialDays:'jours restants',
+ expT:'L’essai est terminé', expS:'Toutes tes données sont en sécurité. Abonne-toi pour continuer.',
+ subOn:'Abonnement actif', subLife:'Accès à vie', subNone:'Aucun abonnement', subNoneS:'Voir les offres',
+ subManage:'Gérer l’abonnement', subManageS:`Annuler ou changer d’offre dans ${STORE_NAME}`,
+ storeNA:'Boutique indisponible, réessaie plus tard', buyFail:'L’achat a échoué', noPurch:'Aucun achat trouvé',
+ langT:'Choisis ta langue', langS:'Tu pourras la changer dans les réglages.',
+ secLang:'Langue', langCur:'Français',
+ predicted:'Prévision', calPd:n=>`Règles ${n} jour${n>1?'s':''}`, atyp:' · atypique',
+ cyclesN:n=>`${n} cycle${n>1?'s':''}`, since:d=>`depuis le ${d}`,
+ patD:(n,a)=>`Noté ${n} fois, le plus souvent vers le jour ${a} du cycle.`,
+ nothingExp:'Rien à exporter pour l’instant', csvSaved:'CSV enregistré', savePdf:'Enregistrer en PDF',
+ summary:'Résumé', cyclesRec:'Cycles enregistrés', yes:'oui', no:'non',
+ colStart:'Début', colLen:'Durée', colBleed:'Règles', dailyLog:'Journal', noEntries:'Aucune donnée pour l’instant.',
+ repFoot:'Généré par Nia sur l’appareil de l’utilisatrice. Il s’agit d’auto-observations, pas d’un avis médical.',
+ notifyOk:'Nous te préviendrons au lancement', bkSaved:'Sauvegarde enregistrée',
+ invTxt:u=>`Essaie Nia — un suivi de cycle qui garde tes données uniquement sur ton téléphone. ${u}`,
+ errT:'Un problème est survenu', errBtn:'Recommencer', locale:'fr-FR'},
+de:{tagline:'ein Zyklus, den nur du kennst',
+ hello:'Hallo, ich bin Nia', hello2:'Lass uns deinen Kalender einrichten',
+ w1s:`Deine Einträge bleiben auf deinem Handy und in deinem eigenen ${CLOUD}. Weder Werbenetzwerke noch wir können sie lesen.`,
+ start:'Los geht’s', restore:'Ich habe schon ein Backup', noreg:'Dauert etwa eine Minute. Ohne Anmeldung, ohne E-Mail.',
+ next:'Weiter', skip:'Überspringen', done:'Fertig',
+ q1:'Was führt dich her?', q1s:'Davon hängt ab, was wir auf dem Startbildschirm zeigen.',
+ g1:'Zyklus verfolgen', g1s:'Wissen, wann Periode und PMS kommen',
+ g2:'Kinderwunsch', g2s:'Genaues fruchtbares Fenster und Eisprung',
+ g3:'Schwangerschaft vermeiden', g3s:'Tage mit geringer Empfängniswahrscheinlichkeit',
+ g4:'Symptome verstehen', g4s:'Schmerz, Stimmung, Schlaf und ihr Zusammenhang mit dem Zyklus',
+ q2:'Wie dürfen wir dich nennen?', q2s:'Dein Name bleibt auf diesem Handy. Du kannst das überspringen.',
+ nameph:'Name oder Spitzname', byear:'Geburtsjahr',
+ byears:'Hilft einzuschätzen, was normal ist: Ein Zyklus mit 17 verhält sich anders als mit 45. Nach dem vollen Datum fragen wir nie.',
+ byearl:'Geburtsjahr',
+ q3:'Wann hat deine letzte Periode begonnen?', q3s:'Der Startpunkt für die erste Prognose. Du kannst es später im Kalender ändern.',
+ dunno:'Ich weiß es nicht mehr', dunnos:'Wir starten mit dem ersten Periodentag, den du einträgst',
+ q4:'Zyklus- und Periodenlänge', q4s:'Unsicher? Lass die Standardwerte. Nach zwei Zyklen rechnen wir selbst.',
+ cyclel:'Tage pro Zyklus', periodl:'Tage Blutung',
+ q5:'Wie regelmäßig ist dein Zyklus?', q5s:'Das ändert den Algorithmus. Schwankt er, zeigen wir einen Zeitraum statt eines Datums.',
+ r1:'Regelmäßig', r1s:'Zyklen weichen bis zu 3 Tage ab',
+ r2:'Schwankt etwas', r2s:'Zyklen weichen bis zu einer Woche ab',
+ r3:'Unregelmäßig', r3s:'Schwankt stark, Verspätungen sind bei mir normal',
+ r4:'Weiß ich nicht', r4s:'Wir ermitteln es aus deinen Einträgen',
+ bc:'Hormonelle Verhütung', bcn:'Nehme ich nicht', bcy:'Nehme ich', bcys:'Dann sagen wir keinen Eisprung voraus',
+ q6:'Was möchtest du erfassen?', q6s:'Wähle, was auf dem Startbildschirm erscheint. Der Rest bleibt verborgen. Später änderbar.',
+ m_mood:'Stimmung', m_pain:'Schmerzen und Krämpfe', m_disch:'Ausfluss', m_sleep:'Schlaf',
+ m_energy:'Energie', m_bbt:'Basaltemperatur', m_med:'Medikamente und Vitamine',
+ q7:'Wo deine Daten liegen', q7s:'Damit beim Handywechsel nichts verloren geht.',
+ bk:`Backup in deinem ${CLOUD}`, bks:'Wird auf deinem Handy verschlüsselt, bevor es gesendet wird. Wir können es nicht lesen',
+ lock:`Entsperren per ${BIO}`, locks:'Gesperrt, wenn jemand anderes dein Handy nimmt',
+ rem:'Erinnerungen', rems:'Periode und Medikamente. Den Ton wählst du',
+ nope:'Was wir nie tun', nopes:'Keine Werbung, keine Weitergabe an Dritte, keine E-Mail oder Telefonnummer, kein Profil von dir.',
+ delnote:'Du kannst jederzeit alles mit einem Knopf löschen.',
+ hi:'Hallo', dayof:'Zyklustag', logday:'Tag eintragen', marktoday:'Heute eintragen',
+ ph_period:'Periode', ph_fert:'Fruchtbares Fenster', ph_ovu:'Eisprung', ph_luteal:'Lutealphase', ph_foll:'Follikelphase',
+ nodata:'Trage deinen ersten Periodentag ein', nodatas:'Dann erstellen wir deine Prognose.',
+ cal:'Kalender', ins:'Auswertung', near:'Für dich', more:'Mehr', today:'Heute',
+ hist:'Zyklusverlauf', noHist:'Noch keine abgeschlossenen Zyklen', allfree:'Dein ganzer Verlauf, ohne Zeitlimit.',
+ cyclen:'Zykluslänge', avgc:'Durchschnittlicher Zyklus', spread:'Schwankung', avgp:'Durchschnittliche Periode', lut:'Lutealphase',
+ days:'Tage', daysx:'Tage', patterns:'Muster', nopat:'Muster erscheinen nach zwei bis drei Zyklen.',
+ pdf:'Bericht für die Ärztin · PDF', csv:'Daten exportieren · CSV',
+ expnote:'Die Datei wird auf deinem Handy erstellt. Wer sie sieht, entscheidest du.',
+ soon:'Bald', nearT:'Für dich', nearS:'Ein ruhiges Gespräch darüber, was Körper und Stimmung gerade tun. Ohne Diagnosen, ohne Urteil.',
+ n1:'Erklärt verständlich', n1s:'Warum sich dein Zyklus verschoben hat, was die Lutealphase ist, was diese Woche zu erwarten ist.',
+ n2:'Erkennt Zusammenhänge', n2s:'Verknüpft Schlaf, Schmerzen und Stimmung mit deiner Zyklusphase.',
+ n3:'Bereitet auf den Arzttermin vor', n3s:'Sammelt Fragen aus deinem Verlauf und hängt sie an den Bericht.',
+ notifyme:'Zum Start benachrichtigen', neardis:'Ein Info-Assistent, keine Ärztin. Bei bedenklichen Symptomen verweisen wir an Fachleute.',
+ set:'Einstellungen', setS:'Alles unter deiner Kontrolle',
+ secData:'Daten und Backup', secPriv:'Datenschutz', secInv:'Freundin einladen', secPart:'Partner', secRem:'Erinnerungen', secSub:'Abo', secDel:'Daten',
+ bkon:'aktiv', bklast:'Letztes Backup', bkrestore:'Auf neuem Handy wiederherstellen',
+ bkrestores:`Installiere Nia und melde dich im selben ${CLOUD} an`,
+ bkfile:'Kopie als Datei speichern', bkfiles:'Falls du sie separat aufbewahren willst',
+ discreet:'Diskreter Modus', discreets:'Neutraler Name und neutrales Symbol in Benachrichtigungen',
+ invT:'Erzähl einer Freundin von Nia', invS:`Die Einladung ist nur ein ${STORE_NAME}-Link: Wir lesen nie deine Kontakte.`,
+ invcopy:'Link kopieren', invshare:'Teilen',
+ partadd:'Partner hinzufügen', partadds:'Er sieht nur deine Zyklusphase',
+ remP:'Periode steht bevor', remPs:'2 Tage vorher, 20:00', remM:'Medikamente', remMs:'Täglich, 9:00',
+ remD:'Neutraler Ton', remDs:'Nur Fakten, keine Emojis, keine Kosenamen',
+ remDay:'Wie war dein Tag', remDayS:'Täglich, 20:30', remOvu:'Eisprung und fruchtbare Tage', remOvuS:'Einen Tag vorher, 10:00',
+ nDayT:'Wie war dein Tag?', nDayB:'Trage Stimmung, Schlaf und Befinden ein — das dauert eine Minute.',
+ nPerT:'Periode steht bevor', nPerB:'Erwartet in 2 Tagen.',
+ nPer0T:'Periode heute erwartet', nPer0B:'Wenn sie beginnt, trage den ersten Tag ein — so wird die Prognose genauer.',
+ nFertT:'Morgen beginnen die fruchtbaren Tage', nFertB:'Die Empfängniswahrscheinlichkeit steigt.',
+ nOvuT:'Eisprung morgen erwartet', nOvuB:'Der fruchtbarste Tag des Zyklus.',
+ nMedT:'Medikamente und Vitamine', nMedB:'Zeit für das, was du geplant hast.',
+ nRateT:'Gefällt dir Nia?', nRateB:`Bewerte uns im ${STORE_NAME} — das hilft uns sehr.`,
+ nDiscT:'Nia', nDiscB:'Du hast eine neue Erinnerung', nChan:'Erinnerungen',
+ delall:'Alles löschen', delalls:'Sofort, ohne E-Mails und Wartezeit',
+ privnote:'Nia nutzt keine Werbe-IDs und erstellt kein Profil von dir.',
+ sheetS:'Notiere, wie du dich fühlst. Nichts ist Pflicht.', save:'Speichern',
+ f0:'Keine', f1:'Schmierblutung', f2:'Leicht', f3:'Mittel', f4:'Stark',
+ mo1:'Ruhig', mo2:'Fröhlich', mo3:'Ängstlich', mo4:'Gereizt', mo5:'Niedergeschlagen',
+ pa1:'Krämpfe', pa2:'Kopf', pa3:'Unterer Rücken', pa4:'Brust', pa5:'Verdauung',
+ en1:'Sehr niedrig', en2:'Niedrig', en3:'Normal', en4:'Hoch',
+ sleeph:'Stunden Schlaf', flow:'Blutung', mood:'Stimmung', pain:'Schmerz', energy:'Energie',
+ saved:'Tag gespeichert', copied:'Link kopiert', deleted:'Alle Daten gelöscht',
+ confirmDel:'Alle Einträge löschen? Das lässt sich nicht rückgängig machen.',
+ predP:'Periode erwartet', predO:'Eisprung erwartet', predRange:'Fruchtbare Tage',
+ lateT:n=>`${n} ${n===1?'Tag':'Tage'} verspätet`, lateS:'Wenn deine Periode beginnt, trage den ersten Tag ein und wir rechnen neu.',
+ accHi:'Prognose auf Basis deiner Einträge.', accLow:'Dein Zyklus schwankt — wir zeigen einen Zeitraum. Ehrlicher, als eine Woche danebenzuliegen.',
+ accNew:'Die Genauigkeit steigt nach zwei bis drei Zyklen.',
+ bcNote:'Du verhütest hormonell — wir sagen keinen Eisprung voraus.',
+ mon:['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'],
+ monN:['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'],
+ monS:['Jan','Feb','Mär','Apr','Mai','Jun','Jul','Aug','Sep','Okt','Nov','Dez'],
+ wd:['Mo','Di','Mi','Do','Fr','Sa','So'],
+ wdL:['Sonntag','Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag'],
+ fmt:(d,m)=>`${d}. ${T.mon[m]}`,
+ dateLong:d=>`${T.wdL[d.getDay()]}, ${d.getDate()}. ${T.mon[d.getMonth()]}`,
+ hdr:['Datum','Zyklustag','Blutung','Stimmung','Schmerz','Schlaf','Energie','Temperatur'],
+ repT:'Bericht für die Ärztin', repGen:'Erstellt',
+ pwT:'1 Monat gratis', pwS:'Voller Zugang. Jederzeit kündbar — wir erinnern dich 2 Tage vor der Abbuchung.',
+ pw1:'Zyklus- und Eisprungprognosen', pw1s:'Auch bei unregelmäßigem Zyklus',
+ pw2:'Gesamter Verlauf und Auswertung', pw2s:'Ohne Zeitlimit',
+ pw3:'Bericht für die Ärztin', pw3s:'PDF und CSV, auf deinem Handy erstellt',
+ pw4:'Deine Daten bleiben deine', pw4s:'Keine Werbung, keine Weitergabe',
+ pwM:'Monatlich', pwMP:'2,99 $', pwMN:'Jederzeit kündbar',
+ pwQ:'3 Monate', pwQP:'3,99 $', pwQN:'1,33 $ pro Monat',
+ pwYear:'Jährlich', pwYearP:'15,99 $', pwYearN:'1,33 $ pro Monat · bester Preis', pwBest:'TOP',
+ pwLife:'Lebenslang', pwLifeP:'34,99 $', pwLifeN:'Einmalzahlung, kein Abo',
+ pwCta:'1 Monat gratis starten', pwRestore:'Kauf wiederherstellen', lnkPriv:'Datenschutzerklärung', lnkTerms:'Nutzungsbedingungen (EULA)',
+ pwNoteIos:'Abbuchung nach 1 Monat, sofern nicht gekündigt. Verwaltung in den Einstellungen deines Apple-Accounts.',
+ pwNoteAnd:'Abbuchung nach 1 Monat, sofern nicht gekündigt. Verwaltung in Google Play.',
+ pwNoteLife:'Einmalzahlung. Kein Abo, keine automatischen Abbuchungen.',
+ trialLeft:'Testphase', trialDays:'Tage übrig',
+ expT:'Deine Testphase ist abgelaufen', expS:'Alle Einträge sind sicher. Abonniere, um weiterzumachen.',
+ subOn:'Abo aktiv', subLife:'Lebenslanger Zugang', subNone:'Kein Abo', subNoneS:'Tarife ansehen',
+ subManage:'Abo verwalten', subManageS:`Im ${STORE_NAME} kündigen oder Tarif ändern`,
+ storeNA:'Store nicht verfügbar, versuche es später', buyFail:'Kauf fehlgeschlagen', noPurch:'Keine Käufe gefunden',
+ langT:'Wähle deine Sprache', langS:'Du kannst sie später in den Einstellungen ändern.',
+ secLang:'Sprache', langCur:'Deutsch',
+ predicted:'Prognose', calPd:n=>`Periode ${n} ${n===1?'Tag':'Tage'}`, atyp:' · untypisch',
+ cyclesN:n=>`${n} ${n===1?'Zyklus':'Zyklen'}`, since:d=>`seit ${d}`,
+ patD:(n,a)=>`${n}-mal eingetragen, meist um Tag ${a} des Zyklus.`,
+ nothingExp:'Noch nichts zu exportieren', csvSaved:'CSV gespeichert', savePdf:'Als PDF speichern',
+ summary:'Übersicht', cyclesRec:'Erfasste Zyklen', yes:'ja', no:'nein',
+ colStart:'Beginn', colLen:'Länge', colBleed:'Blutung', dailyLog:'Tagebuch', noEntries:'Noch keine Einträge.',
+ repFoot:'Von Nia auf dem Gerät der Nutzerin erstellt. Es handelt sich um Selbstbeobachtungen, nicht um eine ärztliche Beurteilung.',
+ notifyOk:'Wir sagen dir zum Start Bescheid', bkSaved:'Backup gespeichert',
+ invTxt:u=>`Probier Nia aus — ein Zyklustracker, der deine Daten nur auf deinem Handy speichert. ${u}`,
+ errT:'Etwas ist schiefgelaufen', errBtn:'Neu beginnen', locale:'de-DE'},
+ar:{tagline:'دورة لا يعرفها أحد سواكِ',
+ hello:'مرحبًا، أنا نيا', hello2:'لنُعدّ تقويمك',
+ w1s:`تبقى بياناتك على هاتفك وفي ${CLOUD} الخاص بك. لا يمكننا ولا شبكات الإعلانات الاطلاع عليها.`,
+ start:'ابدئي', restore:'لدي نسخة احتياطية', noreg:'يستغرق نحو دقيقة. بلا تسجيل وبلا بريد إلكتروني.',
+ next:'التالي', skip:'تخطٍّ', done:'تمّ',
+ q1:'ما الذي جاء بكِ؟', q1s:'على ذلك يعتمد ما نعرضه في الشاشة الرئيسية.',
+ g1:'متابعة دورتي', g1s:'معرفة موعد الدورة وأعراض ما قبلها',
+ g2:'أرغب في الحمل', g2s:'نافذة خصوبة وموعد إباضة دقيقان',
+ g3:'تجنّب الحمل', g3s:'أيام احتمال الحمل فيها منخفض',
+ g4:'فهم أعراضي', g4s:'الألم والمزاج والنوم وعلاقتها بالدورة',
+ q2:'بماذا نناديكِ؟', q2s:'يبقى اسمك على هذا الهاتف. يمكنكِ التخطي.',
+ nameph:'الاسم أو اللقب', byear:'سنة الميلاد',
+ byears:'يساعدنا على تقدير ما هو طبيعي: الدورة في سن 17 تختلف عنها في سن 45. لا نطلب تاريخ الميلاد كاملًا أبدًا.',
+ byearl:'سنة الميلاد',
+ q3:'متى بدأت آخر دورة؟', q3s:'نقطة البداية لأول توقّع. يمكنكِ تعديلها لاحقًا في التقويم.',
+ dunno:'لا أتذكر', dunnos:'سنبدأ من أول يوم دورة تسجّلينه',
+ q4:'طول الدورة ومدة الحيض', q4s:'لستِ متأكدة؟ اتركي القيم الافتراضية. بعد دورتين سنحسبها بأنفسنا.',
+ cyclel:'يومًا في الدورة', periodl:'أيام الحيض',
+ q5:'ما مدى انتظام دورتك؟', q5s:'هذا يغيّر الخوارزمية. إذا كانت متقلبة نعرض نطاقًا بدل تاريخ واحد.',
+ r1:'منتظمة', r1s:'الفرق بين الدورات حتى 3 أيام',
+ r2:'تتغير قليلًا', r2s:'الفرق بين الدورات حتى أسبوع',
+ r3:'غير منتظمة', r3s:'تتغير كثيرًا، والتأخير أمر عادي لدي',
+ r4:'لا أعرف', r4s:'سنستنتج ذلك من بياناتك',
+ bc:'وسائل منع الحمل الهرمونية', bcn:'لا أستخدمها', bcy:'أستخدمها', bcys:'إذن لن نتوقّع موعد الإباضة',
+ q6:'ماذا تريدين أن تتابعي؟', q6s:'اختاري ما يظهر في الشاشة الرئيسية. الباقي مخفي. يمكن تغييره لاحقًا.',
+ m_mood:'المزاج', m_pain:'الألم والتقلصات', m_disch:'الإفرازات', m_sleep:'النوم',
+ m_energy:'الطاقة', m_bbt:'درجة الحرارة القاعدية', m_med:'الأدوية والفيتامينات',
+ q7:'أين تُحفظ بياناتك', q7s:'حتى لا يضيع شيء عند تغيير الهاتف.',
+ bk:`نسخ احتياطي في ${CLOUD}`, bks:'تُشفَّر على هاتفك قبل إرسالها. لا يمكننا قراءتها',
+ lock:`فتح القفل بـ${BIO}`, locks:'يُقفل التطبيق إذا أخذ شخص آخر هاتفك',
+ rem:'التذكيرات', rems:'الدورة والأدوية. أنتِ تختارين الأسلوب',
+ nope:'ما لا نفعله أبدًا', nopes:'لا إعلانات، ولا مشاركة للبيانات مع أطراف ثالثة، ولا بريد أو رقم هاتف، ولا ملف تعريفي عنكِ.',
+ delnote:'يمكنكِ حذف كل شيء في أي وقت بزر واحد.',
+ hi:'مرحبًا', dayof:'يوم الدورة', logday:'سجّلي اليوم', marktoday:'سجّلي اليوم',
+ ph_period:'الحيض', ph_fert:'نافذة الخصوبة', ph_ovu:'الإباضة', ph_luteal:'المرحلة الأصفرية', ph_foll:'المرحلة الجريبية',
+ nodata:'سجّلي أول يوم من دورتك', nodatas:'بعدها سنبني توقّعك.',
+ cal:'التقويم', ins:'التحليلات', near:'بجانبك', more:'المزيد', today:'اليوم',
+ hist:'سجل الدورات', noHist:'لا توجد دورات مكتملة بعد', allfree:'سجلك الكامل، بلا حدود زمنية.',
+ cyclen:'طول الدورة', avgc:'متوسط الدورة', spread:'التفاوت', avgp:'متوسط الحيض', lut:'المرحلة الأصفرية',
+ days:'أيام', daysx:'يومًا', patterns:'الأنماط', nopat:'تظهر الأنماط بعد دورتين أو ثلاث.',
+ pdf:'تقرير للطبيب · PDF', csv:'تصدير البيانات · CSV',
+ expnote:'يُنشأ الملف على هاتفك. أنتِ من يقرر من يراه.',
+ soon:'قريبًا', nearT:'بجانبك', nearS:'حديث هادئ عمّا يحدث لجسمك ومزاجك. بلا تشخيص وبلا أحكام.',
+ n1:'يشرح بكلمات بسيطة', n1s:'لماذا تغيّرت دورتك، وما المرحلة الأصفرية، وماذا تتوقعين هذا الأسبوع.',
+ n2:'يلاحظ الأنماط', n2s:'يربط نومك وألمك ومزاجك بمرحلة الدورة.',
+ n3:'يحضّرك لزيارة الطبيب', n3s:'يجمع أسئلة من سجلك ويرفقها بالتقرير.',
+ notifyme:'أعلميني عند الإطلاق', neardis:'مساعد معلوماتي وليس طبيبًا. عند الأعراض المقلقة نحيلكِ إلى مختص.',
+ set:'الإعدادات', setS:'كل شيء تحت سيطرتك',
+ secData:'البيانات والنسخ الاحتياطي', secPriv:'الخصوصية', secInv:'ادعي صديقة', secPart:'الشريك', secRem:'التذكيرات', secSub:'الاشتراك', secDel:'البيانات',
+ bkon:'مفعّل', bklast:'آخر نسخة', bkrestore:'الاستعادة على هاتف جديد',
+ bkrestores:`ثبّتي نيا وسجّلي الدخول إلى ${CLOUD} نفسه`,
+ bkfile:'حفظ نسخة في ملف', bkfiles:'إذا أردتِ الاحتفاظ بها منفصلة',
+ discreet:'الوضع الخفي', discreets:'اسم وأيقونة محايدان في الإشعارات',
+ invT:'أخبري صديقة عن نيا', invS:`الدعوة مجرد رابط من ${STORE_NAME}: لا نقرأ جهات اتصالك أبدًا.`,
+ invcopy:'نسخ الرابط', invshare:'مشاركة',
+ partadd:'إضافة الشريك', partadds:'سيرى مرحلة دورتك فقط',
+ remP:'اقتراب الدورة', remPs:'قبل يومين، 20:00', remM:'الأدوية', remMs:'يوميًا، 9:00',
+ remD:'أسلوب إشعارات محايد', remDs:'حقائق فقط، بلا رموز تعبيرية أو ألقاب',
+ remDay:'كيف كان يومك', remDayS:'يوميًا، 20:30', remOvu:'الإباضة والأيام الخصبة', remOvuS:'قبل يوم، 10:00',
+ nDayT:'كيف كان يومك؟', nDayB:'سجّلي مزاجك ونومك وحالتك — يستغرق دقيقة واحدة.',
+ nPerT:'اقتراب الدورة', nPerB:'متوقعة بعد يومين.',
+ nPer0T:'الدورة متوقعة اليوم', nPer0B:'عندما تبدأ، سجّلي أول يوم ليصبح التوقّع أدق.',
+ nFertT:'تبدأ الأيام الخصبة غدًا', nFertB:'يرتفع احتمال الحمل.',
+ nOvuT:'الإباضة متوقعة غدًا', nOvuB:'أكثر أيام الدورة خصوبة.',
+ nMedT:'الأدوية والفيتامينات', nMedB:'حان وقت تناول ما خططتِ له.',
+ nRateT:'هل يعجبك نيا؟', nRateB:`قيّمي التطبيق في ${STORE_NAME} — هذا يساعدنا كثيرًا.`,
+ nDiscT:'Nia', nDiscB:'لديكِ تذكير جديد', nChan:'التذكيرات',
+ delall:'حذف كل شيء', delalls:'فورًا، بلا رسائل وبلا فترة انتظار',
+ privnote:'لا يستخدم نيا معرّفات إعلانية ولا يبني ملفًا تعريفيًا عنكِ.',
+ sheetS:'سجّلي ما تشعرين به. لا شيء إلزامي.', save:'حفظ',
+ f0:'لا يوجد', f1:'تبقيع', f2:'خفيف', f3:'متوسط', f4:'غزير',
+ mo1:'هادئة', mo2:'سعيدة', mo3:'قلقة', mo4:'متوترة', mo5:'حزينة',
+ pa1:'تقلصات', pa2:'صداع', pa3:'أسفل الظهر', pa4:'الصدر', pa5:'الهضم',
+ en1:'منخفضة جدًا', en2:'منخفضة', en3:'عادية', en4:'مرتفعة',
+ sleeph:'ساعات النوم', flow:'الحيض', mood:'المزاج', pain:'الألم', energy:'الطاقة',
+ saved:'تم حفظ اليوم', copied:'تم نسخ الرابط', deleted:'تم حذف كل البيانات',
+ confirmDel:'حذف كل السجلات؟ لا يمكن التراجع عن ذلك.',
+ predP:'الدورة المتوقعة', predO:'الإباضة المتوقعة', predRange:'الأيام الخصبة',
+ lateT:n=>`تأخير ${arDays(n)}`, lateS:'عندما تبدأ دورتك، سجّلي أول يوم وسنعيد الحساب.',
+ accHi:'التوقّع مبني على بياناتك.', accLow:'دورتك متقلبة — لذلك نعرض نطاقًا. هذا أصدق من خطأ بأسبوع.',
+ accNew:'تتحسن الدقة بعد دورتين أو ثلاث.',
+ bcNote:'أنتِ تستخدمين وسيلة منع حمل هرمونية — لا نتوقّع موعد الإباضة.',
+ mon:['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'],
+ monN:['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'],
+ monS:['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'],
+ wd:['إثن','ثلا','أرب','خمي','جمع','سبت','أحد'],
+ wdL:['الأحد','الإثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'],
+ fmt:(d,m)=>`${d} ${T.mon[m]}`,
+ dateLong:d=>`${T.wdL[d.getDay()]}، ${d.getDate()} ${T.mon[d.getMonth()]}`,
+ hdr:['التاريخ','يوم الدورة','الحيض','المزاج','الألم','النوم','الطاقة','الحرارة'],
+ repT:'تقرير للطبيب', repGen:'تاريخ الإنشاء',
+ pwT:'شهر مجاني', pwS:'وصول كامل. يمكنكِ الإلغاء في أي وقت — نذكّرك قبل الدفع بيومين.',
+ pw1:'توقّع الدورة والإباضة', pw1s:'يعمل مع الدورة غير المنتظمة أيضًا',
+ pw2:'كامل السجل والتحليلات', pw2s:'بلا حدود زمنية',
+ pw3:'تقرير للطبيب', pw3s:'PDF وCSV، يُنشآن على هاتفك',
+ pw4:'بياناتك لكِ وحدك', pw4s:'بلا إعلانات وبلا مشاركة',
+ pwM:'شهري', pwMP:'$2.99', pwMN:'إلغاء في أي وقت',
+ pwQ:'3 أشهر', pwQP:'$3.99', pwQN:'$1.33 شهريًا',
+ pwYear:'سنوي', pwYearP:'$15.99', pwYearN:'$1.33 شهريًا · الأوفر', pwBest:'الأفضل',
+ pwLife:'مدى الحياة', pwLifeP:'$34.99', pwLifeN:'دفعة واحدة، بلا اشتراك',
+ pwCta:'ابدئي شهرًا مجانيًا', pwRestore:'استعادة الشراء', lnkPriv:'سياسة الخصوصية', lnkTerms:'شروط الاستخدام (EULA)',
+ pwNoteIos:'يُخصم المبلغ بعد شهر ما لم تلغي. الإدارة من إعدادات Apple ID.',
+ pwNoteAnd:'يُخصم المبلغ بعد شهر ما لم تلغي. الإدارة من Google Play.',
+ pwNoteLife:'دفعة واحدة. بلا اشتراك وبلا خصومات تلقائية.',
+ trialLeft:'التجربة', trialDays:'أيام متبقية',
+ expT:'انتهت الفترة التجريبية', expS:'كل سجلاتك محفوظة. اشتركي للمتابعة.',
+ subOn:'الاشتراك مفعّل', subLife:'وصول مدى الحياة', subNone:'لا يوجد اشتراك', subNoneS:'عرض الخطط',
+ subManage:'إدارة الاشتراك', subManageS:`الإلغاء أو تغيير الخطة في ${STORE_NAME}`,
+ storeNA:'المتجر غير متاح، حاولي لاحقًا', buyFail:'فشل الشراء', noPurch:'لم يُعثر على مشتريات',
+ langT:'اختاري لغتك', langS:'يمكنكِ تغييرها لاحقًا في الإعدادات.',
+ secLang:'اللغة', langCur:'العربية',
+ predicted:'متوقّع', calPd:n=>`الحيض ${arDays(n)}`, atyp:' · غير معتادة',
+ cyclesN:n=>arCycles(n), since:d=>`منذ ${d}`,
+ patD:(n,a)=>`سُجّل ${n} مرة، غالبًا حول اليوم ${a} من الدورة.`,
+ nothingExp:'لا شيء للتصدير بعد', csvSaved:'تم حفظ CSV', savePdf:'حفظ بصيغة PDF',
+ summary:'الملخص', cyclesRec:'الدورات المسجلة', yes:'نعم', no:'لا',
+ colStart:'البداية', colLen:'المدة', colBleed:'الحيض', dailyLog:'السجل اليومي', noEntries:'لا توجد سجلات بعد.',
+ repFoot:'أنشأه تطبيق نيا على جهاز المستخدمة. هذه ملاحظات ذاتية وليست تقييمًا طبيًا.',
+ notifyOk:'سنعلمك عند الإطلاق', bkSaved:'تم حفظ النسخة',
+ invTxt:u=>`جرّبي نيا — تطبيق لمتابعة الدورة يحفظ بياناتك على هاتفك فقط. ${u}`,
+ errT:'حدث خطأ ما', errBtn:'البدء من جديد', locale:'ar-u-nu-latn'}
 };}
+// тексты для Android-версии с рекламой
+const ADS_TXT = {
+ ru:{pwFree:'Продолжить бесплатно, с рекламой', pwT:'Nia без рекламы', pwS:'Все функции бесплатны. Подписка убирает рекламу. Первый месяц бесплатно, отмена в любой момент.',
+   pw4:'Без рекламы', pw4s:'Подписка полностью отключает рекламу', subNone:'Убрать рекламу', subNoneS:'Оформить подписку',
+   expT:'Nia без рекламы', expS:'Пользуйтесь бесплатно с рекламой или оформите подписку без рекламы.',
+   nopes:'Не передаём записи о цикле никому, не просим почту и телефон. В бесплатной версии есть неперсонализированная реклама Google: она не использует ваши записи о здоровье.',
+   privnote:'Записи о цикле хранятся только на телефоне. Реклама в бесплатной версии неперсонализированная и не использует ваши данные о здоровье.', adPriv:'Настройки рекламы'},
+ kk:{pwFree:'Тегін жалғастыру, жарнамамен', pwT:'Nia жарнамасыз', pwS:'Барлық функция тегін. Жазылым жарнаманы өшіреді. Алғашқы ай тегін, кез келген уақытта бас тартуға болады.',
+   pw4:'Жарнамасыз', pw4s:'Жазылым жарнаманы толық өшіреді', subNone:'Жарнаманы өшіру', subNoneS:'Жазылым рәсімдеу',
+   expT:'Nia жарнамасыз', expS:'Жарнамамен тегін пайдаланыңыз немесе жарнамасыз жазылым рәсімдеңіз.',
+   nopes:'Цикл жазбаларын ешкімге бермейміз, пошта мен телефон сұрамаймыз. Тегін нұсқада Google-дың жекелендірілмеген жарнамасы бар: ол денсаулық жазбаларыңызды қолданбайды.',
+   privnote:'Цикл жазбалары тек телефонда сақталады. Тегін нұсқадағы жарнама жекелендірілмеген және денсаулық деректеріңізді қолданбайды.', adPriv:'Жарнама баптаулары'},
+ en:{pwFree:'Continue free, with ads', pwT:'Nia without ads', pwS:'Every feature is free. A subscription removes ads. First month free, cancel anytime.',
+   pw4:'No ads', pw4s:'A subscription turns ads off completely', subNone:'Remove ads', subNoneS:'Subscribe',
+   expT:'Nia without ads', expS:'Keep using Nia free with ads, or subscribe to remove them.',
+   nopes:'We never share your cycle entries and never ask for email or phone. The free version shows non-personalized Google ads that do not use your health entries.',
+   privnote:'Your cycle entries stay on your phone. Ads in the free version are non-personalized and do not use your health data.', adPriv:'Ad privacy settings'},
+ es:{pwFree:'Seguir gratis, con anuncios', pwT:'Nia sin anuncios', pwS:'Todas las funciones son gratis. La suscripción quita los anuncios. Primer mes gratis, cancela cuando quieras.',
+   pw4:'Sin anuncios', pw4s:'La suscripción desactiva los anuncios por completo', subNone:'Quitar anuncios', subNoneS:'Suscribirse',
+   expT:'Nia sin anuncios', expS:'Sigue usando Nia gratis con anuncios o suscríbete para quitarlos.',
+   nopes:'Nunca compartimos tus registros del ciclo ni pedimos correo o teléfono. La versión gratuita muestra anuncios no personalizados de Google que no usan tus datos de salud.',
+   privnote:'Tus registros del ciclo se quedan en tu teléfono. Los anuncios de la versión gratuita no son personalizados y no usan tus datos de salud.', adPriv:'Ajustes de privacidad de anuncios'},
+ fr:{pwFree:'Continuer gratuitement, avec publicité', pwT:'Nia sans publicité', pwS:'Toutes les fonctions sont gratuites. L’abonnement supprime la publicité. Premier mois gratuit, annulable à tout moment.',
+   pw4:'Sans publicité', pw4s:'L’abonnement supprime complètement la publicité', subNone:'Supprimer la publicité', subNoneS:'S’abonner',
+   expT:'Nia sans publicité', expS:'Continue gratuitement avec publicité ou abonne-toi pour la supprimer.',
+   nopes:'Nous ne partageons jamais tes données de cycle et ne demandons ni e-mail ni téléphone. La version gratuite affiche des publicités Google non personnalisées qui n’utilisent pas tes données de santé.',
+   privnote:'Tes données de cycle restent sur ton téléphone. La publicité de la version gratuite n’est pas personnalisée et n’utilise pas tes données de santé.', adPriv:'Paramètres de confidentialité des annonces'},
+ de:{pwFree:'Kostenlos weiter, mit Werbung', pwT:'Nia ohne Werbung', pwS:'Alle Funktionen sind kostenlos. Das Abo entfernt die Werbung. Erster Monat gratis, jederzeit kündbar.',
+   pw4:'Ohne Werbung', pw4s:'Das Abo schaltet die Werbung komplett ab', subNone:'Werbung entfernen', subNoneS:'Abonnieren',
+   expT:'Nia ohne Werbung', expS:'Nutze Nia kostenlos mit Werbung oder abonniere, um sie zu entfernen.',
+   nopes:'Wir geben deine Zyklusdaten nie weiter und fragen nicht nach E-Mail oder Telefon. Die kostenlose Version zeigt nicht personalisierte Google-Werbung, die deine Gesundheitsdaten nicht nutzt.',
+   privnote:'Deine Zyklusdaten bleiben auf deinem Handy. Die Werbung in der kostenlosen Version ist nicht personalisiert und nutzt keine Gesundheitsdaten.', adPriv:'Datenschutzeinstellungen für Werbung'},
+ ar:{pwFree:'المتابعة مجانًا مع إعلانات', pwT:'نيا بلا إعلانات', pwS:'كل الميزات مجانية. الاشتراك يزيل الإعلانات. الشهر الأول مجاني، ويمكن الإلغاء في أي وقت.',
+   pw4:'بلا إعلانات', pw4s:'الاشتراك يوقف الإعلانات تمامًا', subNone:'إزالة الإعلانات', subNoneS:'اشتركي',
+   expT:'نيا بلا إعلانات', expS:'استخدمي نيا مجانًا مع الإعلانات أو اشتركي لإزالتها.',
+   nopes:'لا نشارك بيانات دورتك أبدًا ولا نطلب بريدًا أو رقم هاتف. تعرض النسخة المجانية إعلانات Google غير مخصصة لا تستخدم بياناتك الصحية.',
+   privnote:'تبقى بيانات دورتك على هاتفك. الإعلانات في النسخة المجانية غير مخصصة ولا تستخدم بياناتك الصحية.', adPriv:'إعدادات خصوصية الإعلانات'}
+};
+const _buildDict = buildDict;
+const ADS_W1S = {
+ ru:c=>`Записи о цикле хранятся на телефоне и в вашем личном ${c}. Мы не имеем к ним доступа, и они не используются для рекламы.`,
+ kk:c=>`Цикл жазбалары телефоныңызда және жеке ${c} қоймаңызда сақталады. Біз оларды көре алмаймыз және олар жарнамаға қолданылмайды.`,
+ en:c=>`Your cycle entries stay on your phone and in your own ${c}. We can't read them, and they are never used for ads.`,
+ es:c=>`Tus registros del ciclo se guardan en tu teléfono y en tu ${c} personal. No podemos verlos y nunca se usan para anuncios.`,
+ fr:c=>`Tes données de cycle restent sur ton téléphone et dans ton ${c} personnel. Nous ne pouvons pas les lire et elles ne servent jamais à la publicité.`,
+ de:c=>`Deine Zyklusdaten bleiben auf deinem Handy und in deinem eigenen ${c}. Wir können sie nicht lesen, und sie werden nie für Werbung genutzt.`,
+ ar:c=>`تبقى بيانات دورتك على هاتفك وفي ${c} الخاص بك. لا يمكننا قراءتها ولا تُستخدم للإعلانات أبدًا.`
+};
+buildDict = function(){ _buildDict(); if(ADS){ Object.assign(T, ADS_TXT[LANG]); T.w1s = ADS_W1S[LANG](CLOUD); } };
 buildDict();
 
 /* ================= ХРАНИЛИЩЕ ================= */
@@ -1127,7 +1575,7 @@ function applyInfo(ci){
     S.sub.plan = pid.indexOf('lifetime')>=0 ? 'life' : pid.indexOf('3month')>=0 ? 'quarter' : pid.indexOf('monthly')>=0 ? 'month' : 'year';
     S.sub.expires = e.expirationDate || null;
   } else { S.sub.status = 'none'; S.sub.expires = null; }
-  save();
+  save(); adSync();
 }
 // запуск RevenueCat один раз; при ошибке можно повторить
 function rcInit(){
@@ -1272,6 +1720,70 @@ async function notifSync(ask){
   }catch(e){ console.log('notif', e); }
 }
 
+/* ================= РЕКЛАМА (AdMob, только Android) =================
+   Неперсонализированный баннер внизу. Не показывается подписчикам,
+   при открытом листе ввода, на пейволе и во время онбординга. */
+const ADMOB_BANNER_ID = 'ca-app-pub-1286571991466831/4576622874';      // ca-app-pub-XXXX/YYYY из AdMob
+const AD_TEST = false;                                    // true — тестовая реклама при отладке
+const AD = () => window.NiaAdMob;
+let adReady = false, adInitP = null, adShown = false, adHidden = false, adConsentPriv = false;
+async function adInit(){
+  if(!ADS || !NATIVE || !AD() || ADMOB_BANNER_ID.indexOf('__')===0) return false;
+  if(adReady) return true;
+  if(adInitP) return adInitP;
+  adInitP = (async ()=>{
+    try{
+      await AD().initialize();
+      // согласие (обязательно для ЕЭЗ/Великобритании): форма Google UMP
+      try{
+        let ci = await AD().requestConsentInfo();
+        if(ci.isConsentFormAvailable && ci.status==='REQUIRED') ci = await AD().showConsentForm();
+        adConsentPriv = ci.status==='OBTAINED' || ci.status==='REQUIRED';
+      }catch(e){ console.log('ump', e); }
+      AD().addListener('bannerAdSizeChanged', sz=>{
+        const h = Math.round((sz && sz.height) || 0);
+        document.documentElement.style.setProperty('--adh', h+'px');
+        document.body.classList.toggle('ads', h>0);
+      });
+      adReady = true;
+    }catch(e){ console.log('admob init', e); }
+    finally{ adInitP = null; }
+    return adReady;
+  })();
+  return adInitP;
+}
+function adWanted(){
+  if(!ADS || !inApp || hasAccess()) return false;
+  if($('sheet') && $('sheet').classList.contains('on')) return false;
+  if($('vpw') && $('vpw').classList.contains('active')) return false;
+  return true;
+}
+async function adSync(){
+  if(!ADS || !NATIVE) return;
+  const want = adWanted();
+  if(!want){
+    if(adShown){
+      try{ if(hasAccess() || !inApp){ await AD().removeBanner(); adShown=false; } else { await AD().hideBanner(); adHidden=true; } }catch(e){}
+      document.body.classList.remove('ads');
+    }
+    return;
+  }
+  if(!(await adInit())) return;
+  try{
+    if(!adShown){
+      await AD().showBanner({adId:ADMOB_BANNER_ID, adSize:'ADAPTIVE_BANNER', position:'BOTTOM_CENTER', margin:0, npa:true, isTesting:AD_TEST});
+      adShown = true; adHidden = false;
+    } else if(adHidden){ await AD().resumeBanner(); adHidden = false; document.body.classList.add('ads'); }
+  }catch(e){ console.log('banner', e); }
+}
+// лист ввода и экраны открываются в разных местах — следим за ними централизованно
+try{ new MutationObserver(()=>adSync()).observe(document.getElementById('sheet'), {attributes:true, attributeFilter:['class']});
+     new MutationObserver(()=>adSync()).observe(document.getElementById('vpw'), {attributes:true, attributeFilter:['class']}); }catch(e){}
+// место под баннер: навигация и контент поднимаются на высоту рекламы
+try{ const st=document.createElement('style');
+  st.textContent='body.ads{--sb:calc(env(safe-area-inset-bottom,0px) + var(--adh,0px))}';
+  document.head.appendChild(st); }catch(e){}
+
 /* ================= ВСПОМОГАТЕЛЬНОЕ ================= */
 const $ = id => document.getElementById(id);
 const esc = s => String(s).replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -1327,6 +1839,7 @@ function renderPaywall(expired){
       <span><b>${T.pwLife}</b><small>${T.pwLifeN}</small></span>
       <b style="font-family:'Fraunces',serif;font-size:19px">${T.pwLifeP}</b></div>
     <button class="cta" id="pwGo">${T.pwCta}</button>
+    ${ADS ? `<button class="cta ghost" id="pwFree">${T.pwFree}</button>` : ''}
     <button class="cta ghost" id="pwRes">${T.pwRestore}</button>
     <p class="note" style="text-align:center" id="pwNote">${subNote}</p>
     <p class="note" style="text-align:center"><a href="https://nia.forwardip.online/privacy.html" target="_blank" rel="noopener" style="color:inherit">${T.lnkPriv}</a>${PLATFORM==='ios' ? ` · <a href="https://www.apple.com/legal/internet-services/itunes/dev/stdeula/" target="_blank" rel="noopener" style="color:inherit">${T.lnkTerms}</a>` : ''}</p>`;
@@ -1354,6 +1867,7 @@ function renderPaywall(expired){
     busy=false; $('pwGo').disabled=false;
     if(ok) enterApp();
   };
+  if($('pwFree')) $('pwFree').onclick = ()=>enterApp();
   $('pwRes').onclick = async ()=>{
     if(!NATIVE){ toast(T.noPurch); return; }
     if(busy) return; busy=true;
@@ -1516,10 +2030,10 @@ async function finish(){
   save();
   notifSync(true);
   if(NATIVE) await rcRefresh();   // подписка могла быть оформлена раньше (например, после «Удалить всё»)
-  if(hasAccess()) enterApp(); else renderPaywall(false);
+  if(hasAccess()) enterApp(); else renderPaywall(false);   // на Android на пейволе есть «Продолжить бесплатно»
 }
 function enterApp(){
-  inApp = true; document.body.classList.add('app');
+  inApp = true; adSync(); document.body.classList.add('app');
   renderNav(); goTab(0);
   if(!S.settings.installDate){ S.settings.installDate = TODAY; save(); }
   const ask = !S.settings.notifAsked; S.settings.notifAsked = true; save();
@@ -1708,7 +2222,8 @@ function subRow(){
       <a class="row" href="${manageUrl()}" target="_blank" rel="noopener" style="text-decoration:none;color:inherit">
         <div><div class="t">${T.subManage}</div><div class="d">${T.subManageS}</div></div><span>›</span></a>`;
   }
-  return `<div class="row" id="sub"><div><div class="t">${T.subNone}</div><div class="d">${T.subNoneS}</div></div><span>›</span></div>`;
+  return `<div class="row" id="sub"><div><div class="t">${T.subNone}</div><div class="d">${T.subNoneS}</div></div><span>›</span></div>`
+    + (ADS && adConsentPriv ? `<div class="row" id="adpriv"><div><div class="t">${T.adPriv}</div></div><span>›</span></div>` : '');
 }
 function renderSet(){
   const lb = S.settings.lastBackup ? locDate(new Date(S.settings.lastBackup)) : '—';
@@ -1763,9 +2278,10 @@ function renderSet(){
   };
   $('prt').onclick = ()=>toast(T.soon);
   if($('sub')) $('sub').onclick = ()=>renderPaywall(false);
+  if($('adpriv')) $('adpriv').onclick = ()=>{ try{ AD().showPrivacyOptionsForm(); }catch(e){} };
   $('del').onclick = async ()=>{ if(confirm(T.confirmDel)){
     try{ localStorage.removeItem(KEY); }catch(e){}
-    S = blank(); applyDesign();
+    S = blank(); applyDesign(); adSync();
     document.body.classList.remove('app'); inApp = false; toast(T.deleted); step(0);
     notifSync(false);
     if(NATIVE) await rcRefresh();   // вернуть статус подписки из магазина
@@ -1847,9 +2363,10 @@ document.addEventListener('visibilitychange', async ()=>{
   if(NATIVE) await rcRefresh();
   if(inApp) notifSync(false);
   if(inApp && !$('sheet').classList.contains('on') && !$('vpw').classList.contains('active')){
-    if(!hasAccess()){ document.body.classList.remove('app'); inApp=false; renderPaywall(true); }
+    if(!ADS && !hasAccess()){ document.body.classList.remove('app'); inApp=false; renderPaywall(true); }
     else if(dayChanged) goTab(tab);
   }
+  adSync();
 });
 // тема поменялась — перерисовать круг
 try{ window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', ()=>{ if(inApp && tab===0) renderHome(); }); }catch(e){}
@@ -1858,7 +2375,7 @@ async function boot(){
   if(NATIVE) await Promise.race([rcInit(), new Promise(r=>setTimeout(r,6000))]);
   try{
     if(!S.user.onboarded) renderLang();
-    else if(hasAccess()) enterApp();
+    else if(ADS || hasAccess()) enterApp();
     else renderPaywall(true);
   }catch(err){
     // даже при ошибке пользователь не остаётся на пустом экране
