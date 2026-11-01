@@ -36,7 +36,7 @@ const arDayWord = n => { const k=n%100; return n===1?'يوم':n===2?'يومان'
 const arDays = n => n===1?'يوم واحد':n===2?'يومان':`${n} ${arDayWord(n)}`;
 const arCycles = n => { const k=n%100; return n===1?'دورة واحدة':n===2?'دورتان':(k>=3&&k<=10)?`${n} دورات`:`${n} دورة`; };
 /* ================= ОФОРМЛЕНИЯ (7 интерфейсов) ================= */
-const DESIGNS = ['A','B','C','D','E','F','G'];
+const DESIGNS = ['P','S','K'];   // Цветы (основное), Сад, Бумага
 const DZ = {
  ru:{q:s=>`${s}?`,A:'Лента',B:'Орбита',C:'Шкала',D:'Капля',E:'Счётчик',F:'Росток',G:'Диалог',
    As:'Лента дней и ближайшие события',Bs:'Тёмное кольцо цикла',Cs:'Шкала и яркие плитки',Ds:'Капля наполняется за цикл',
@@ -127,9 +127,12 @@ const PAL = {
  D:['#E9F6F4','#FFFFFF','#0E4652','#4E7F87','#FF6B57','#FFE0DA','#1E9A8C','#CDEBE7','#D2E8E5','#D2E8E5','#0E4652','#FFFFFF','Rubik','16px','20px'],
  E:['#FFD84D','#FFF3B8','#1A1714','#5C5440','#FF4F7B','#FFC2D2','#1A1714','#FFF3B8','#F2C53A','#1A1714','#1A1714','#FFD84D','Onest','0px','0px'],
  F:['#F1F4E6','#FFFFFF','#2F3B22','#6B7A58','#E86A92','#FBDDE7','#4F7A2F','#DCEBC8','#DDE5C9','#DDE5C9','#4F7A2F','#FFFFFF','Nunito','18px','20px'],
- G:['#FBFAFF','#EEE8FF','#1F1B3A','#8A84A8','#FF5C8A','#FFE0EA','#2FAE86','#C9F0E1','#DCD3FA','#ECE8F8','#FF5C8A','#FFFFFF','Golos Text','999px','20px']
+ G:['#FBFAFF','#EEE8FF','#1F1B3A','#8A84A8','#FF5C8A','#FFE0EA','#2FAE86','#C9F0E1','#DCD3FA','#ECE8F8','#FF5C8A','#FFFFFF','Golos Text','999px','20px'],
+ P:['#FCF1F2','#FFFFFF','#3B2A31','#8E7580','#D9566E','#F9D5DC','#5FA77E','#D6EEDC','#F6E3E7','#F1DCE1','#B45A77','#FFFFFF','Nunito','999px','22px'],
+ S:['#FCF3EC','#FFFFFF','#173A31','#6B7C76','#F08C8C','#FDE0DA','#2E8F6B','#E3F3EA','#F6EAE2','#EFE2D8','#0F4C3A','#FFFFFF','Manrope','999px','20px'],
+ K:['#F3ECDF','#FBF6EC','#4A2E1E','#7D6553','#9C4F33','#EBD7C4','#6E7F4E','#E3E4CF','#EADFCC','#DCCDB6','#7B4A2A','#FBF6EC','Lora','10px','12px']
 };
-let DS = 'A', DT = DZ.en;
+let DS = 'P', DT = DZ.en;
 function designCSS(){
   let css = '';
   DESIGNS.forEach(k=>{ const c = PAL[k];
@@ -262,21 +265,113 @@ body[data-d] .bars .bar{background:var(--sage);opacity:.45}body[data-d] .bars .b
 .qprog{display:flex;gap:6px;margin:14px 0}.qprog i{flex:1;height:5px;border-radius:3px;background:var(--mist)}.qprog i.on{background:var(--ink)}
 .qnav{display:flex;gap:10px}.qnav .cta{margin-top:0}
 .lkp{display:flex;gap:12px;align-items:center}.lkp .sw{display:flex;gap:3px;flex:0 0 auto}.lkp .sw i{width:14px;height:34px;border-radius:5px}
+
+/* ===== общие для P / S / K ===== */
+body[data-d=P] .nb[data-t="3"],body[data-d=S] .nb[data-t="3"],body[data-d=K] .nb[data-t="3"]{display:none}
+body[data-d=P] .nb i,body[data-d=S] .nb i,body[data-d=K] .nb i{display:block;width:22px;height:22px;font-size:0;font-style:normal}
+.nb i svg{width:22px;height:22px;display:block}
+body[data-d=P] .nb,body[data-d=S] .nb,body[data-d=K] .nb{flex-direction:column;gap:3px;color:var(--ink-soft)}
+body[data-d=P] .nb.on,body[data-d=S] .nb.on,body[data-d=K] .nb.on{color:var(--cta)}
+body[data-d=P] .nav,body[data-d=S] .nav,body[data-d=K] .nav{background:var(--surface);border-top:1px solid var(--line)}
+.sec{font-size:17px;font-weight:800;margin:22px 0 10px}
+.hlogo{display:flex;align-items:center;gap:8px;font-size:20px;font-weight:800}.hlogo svg{width:26px;height:26px}
+.opts.icons{display:grid;grid-template-columns:repeat(5,1fr);gap:4px}
+.opts.icons.n4{grid-template-columns:repeat(4,1fr)}
+body[data-d] .opts.icons .opt{background:transparent;border:0;display:flex;flex-direction:column;align-items:center;gap:5px;padding:2px 0;font-size:11px;line-height:1.15;text-align:center;color:var(--ink-soft);min-height:0}
+.opts.icons .ic{width:48px;height:48px;border-radius:50%;background:var(--surface);display:flex;align-items:center;justify-content:center;font-size:26px;line-height:1}
+.opts.icons .ic svg{width:26px;height:26px}
+body[data-d] .opts.icons .opt.on{background:transparent;color:var(--ink)}
+.opts.icons .opt.on .ic{background:var(--bloom-soft);box-shadow:0 0 0 2px var(--bloom)}
+.hint{display:flex;gap:12px;align-items:center;background:var(--bloom-soft);border-radius:var(--r);padding:14px 16px;margin-top:16px;font-size:13.5px;line-height:1.4}
+.hint .hi{flex:0 0 28px;height:28px;border-radius:50%;background:var(--bloom);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800}
+body[data-d=P] .gm i:not(.period):not(.pred):not(.fert):not(.ovu),body[data-d=S] .gm i:not(.period):not(.pred):not(.fert):not(.ovu),body[data-d=K] .gm i:not(.period):not(.pred):not(.fert):not(.ovu){background:transparent}
+body[data-d=P] .gm i,body[data-d=S] .gm i,body[data-d=K] .gm i{font-weight:600}
+.hint svg{flex:0 0 28px;width:28px;height:28px}
+body[data-d=P] .gm i.today,body[data-d=S] .gm i.today,body[data-d=K] .gm i.today{background:var(--ink);color:var(--canvas);box-shadow:none}
+
+/* ===== P: Цветы ===== */
+.p-card{display:flex;gap:12px;align-items:center;background:var(--bloom-soft);border-radius:22px;padding:16px;margin-top:14px}
+.p-card .pi{flex:0 0 44px;height:44px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center}.p-card .pi svg{width:26px;height:26px}
+.p-card b{display:block;font-size:17px;font-weight:800}.p-card small{display:block;font-size:13px;color:var(--ink-soft);margin-top:3px;line-height:1.35}
+.p-ring{position:relative;width:250px;max-width:72vw;aspect-ratio:1;margin:18px auto 4px}
+.p-ring>svg{width:100%;height:100%;display:block}
+.p-ring .c{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+.p-ring .c svg{width:28px;height:28px;margin-bottom:4px}.p-ring .c b{font-size:52px;font-weight:900;line-height:1}.p-ring .c span{font-size:15px;font-weight:700;margin-top:2px}
+.p-leaf{position:absolute;width:62px;opacity:.9;pointer-events:none}
+.p-two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.p-two div{background:var(--surface);border-radius:20px;padding:14px;display:flex;gap:10px;align-items:flex-start;cursor:pointer}
+.p-two svg{flex:0 0 24px;width:24px;height:24px}.p-two b{display:block;font-size:14px}.p-two small{display:block;font-size:12.5px;color:var(--ink-soft);margin-top:2px}
+body[data-d=P] .cta{box-shadow:0 8px 18px rgba(180,90,119,.25)}
+body[data-d=P] .view{background:linear-gradient(180deg,#FCF1F2 0%,#FBE9EC 100%)}
+
+/* ===== S: Сад ===== */
+.s-ring{position:relative;width:260px;max-width:74vw;aspect-ratio:1;margin:14px auto 0}
+.s-ring>svg{width:100%;height:100%;display:block}
+.s-ring .c{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:0 30px}
+.s-ring .c svg{width:30px;height:30px;margin-bottom:6px}.s-ring .c b{font-size:26px;font-weight:800;line-height:1.15}.s-ring .c span{font-size:13px;color:var(--ink-soft);margin-top:6px}
+.s-info{display:flex;gap:12px;align-items:center;background:var(--bloom-soft);border-radius:20px;padding:14px 16px;margin-top:16px}
+.s-info svg{flex:0 0 34px;width:34px;height:34px}.s-info b{display:block;font-size:15px}.s-info small{display:block;font-size:12.5px;color:var(--ink-soft);margin-top:2px}
+.s-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.s-grid div{background:var(--surface);border-radius:18px;padding:14px;cursor:pointer;min-height:84px}
+.s-grid svg{width:22px;height:22px;display:block;margin-bottom:6px}.s-grid small{display:block;font-size:12px;color:var(--ink-soft)}.s-grid b{display:block;font-size:14px;margin-top:2px}
+
+/* ===== K: Бумага ===== */
+body[data-d=K] h1,body[data-d=K] .xh,body[data-d=K] .stat b{font-family:'Lora',serif;font-weight:500;letter-spacing:0}
+body[data-d=K] .cta{border-radius:10px;font-weight:500}
+.k-eye{font-size:13px;letter-spacing:2px;text-transform:uppercase;color:var(--ink-soft);font-family:system-ui,sans-serif}
+.k-rule{width:36px;height:1.5px;background:var(--ink);margin:8px 0 14px}
+.k-big{font-family:'Lora',serif;font-size:62px;line-height:1.02;font-weight:500;color:var(--ink)}
+.k-lead{font-family:'Lora',serif;font-size:18px;line-height:1.4;margin-top:12px}
+.k-wave{margin-top:22px}.k-wave svg{width:100%;height:30px;display:block}
+.k-ph{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;text-align:center;margin-top:8px}
+.k-ph b{display:block;font-size:10px;letter-spacing:.5px;text-transform:uppercase;font-family:system-ui,sans-serif;line-height:1.2;min-height:24px}
+.k-ph span{display:block;font-family:'Lora',serif;font-size:15px;margin-top:4px}
+.k-ph div.on b,.k-ph div.on span{color:var(--bloom)}
+.k-card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px;margin-top:20px;box-shadow:0 6px 16px rgba(74,46,30,.08)}
+.k-card em{display:block;font-family:'Lora',serif;font-style:italic;font-size:22px;margin:6px 0}
+.k-card p{font-family:'Lora',serif;font-size:15px;line-height:1.45;color:var(--ink-soft)}
+.k-note{text-align:center;font-size:12px;color:var(--ink-soft);margin-top:10px}
+html[dir=rtl] .k-rule{margin-right:0}
 `;
   return css;
 }
 function applyDesign(){
-  DS = DESIGNS.indexOf(S.settings.design)>=0 ? S.settings.design : 'A';
+  DS = DESIGNS.indexOf(S.settings.design)>=0 ? S.settings.design : 'P';
   document.body.dataset.d = DS;
   if(!document.getElementById('nia-design-css')){
     const l = document.createElement('link'); l.rel='stylesheet';
-    l.href='https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700;800&family=Onest:wght@400;500;700;800&family=Nunito:wght@400;600;800;900&family=Rubik:wght@400;500;700&display=swap';
+    l.href='https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Manrope:wght@400;500;600;700;800&family=Lora:ital,wght@0,400;0,500;0,600;1,400;1,500&display=swap';
     document.head.appendChild(l);
     const s = document.createElement('style'); s.id='nia-design-css'; s.textContent = designCSS(); document.head.appendChild(s);
   }
   try{ const m=document.querySelector('meta[name="theme-color"]'); if(m) m.setAttribute('content', PAL[DS][0]); }catch(e){}
 }
 function setDesign(k){ S.settings.design = k; save(); applyDesign(); }
+
+/* ---------- иконки (лёгкий SVG, без картинок) ---------- */
+const IC = {
+ flower:c=>`<svg viewBox="0 0 32 32"><g fill="${c||'var(--bloom)'}">${[0,72,144,216,288].map(a=>`<ellipse cx="16" cy="8.5" rx="5" ry="7.5" transform="rotate(${a} 16 16)" opacity=".9"/>`).join('')}</g><circle cx="16" cy="16" r="4" fill="#F6C27A"/></svg>`,
+ drop:(c,lvl)=>{ const id='d'+Math.random().toString(36).slice(2,7), y=26-(lvl==null?20:lvl*20);
+   return `<svg viewBox="0 0 32 32"><defs><clipPath id="${id}"><path d="M16 3C16 3 6 14 6 20a10 10 0 0 0 20 0C26 14 16 3 16 3z"/></clipPath></defs>
+   <path d="M16 3C16 3 6 14 6 20a10 10 0 0 0 20 0C26 14 16 3 16 3z" fill="none" stroke="${c||'var(--bloom)'}" stroke-width="2"/>
+   <rect x="0" y="${y}" width="32" height="32" fill="${c||'var(--bloom)'}" clip-path="url(#${id})"/></svg>`; },
+ heart:c=>`<svg viewBox="0 0 32 32"><path d="M16 27S4 19.5 4 11.5A6.5 6.5 0 0 1 16 8a6.5 6.5 0 0 1 12 3.5C28 19.5 16 27 16 27z" fill="none" stroke="${c||'var(--sage)'}" stroke-width="2.4"/></svg>`,
+ bolt:c=>`<svg viewBox="0 0 32 32"><path d="M18 3L7 18h8l-2 11 12-16h-8z" fill="${c||'var(--sage)'}"/></svg>`,
+ moon:c=>`<svg viewBox="0 0 32 32"><path d="M21 4a12 12 0 1 0 7 19A10 10 0 0 1 21 4z" fill="${c||'#7A6FD0'}"/></svg>`,
+ smile:c=>`<svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="12" fill="${c||'#9FD8B5'}"/><circle cx="12" cy="13" r="1.6" fill="#173A31"/><circle cx="20" cy="13" r="1.6" fill="#173A31"/><path d="M11 18.5q5 5 10 0" stroke="#173A31" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg>`,
+ batt:(lvl,c)=>`<svg viewBox="0 0 32 32"><rect x="10" y="5" width="12" height="23" rx="3" fill="none" stroke="${c||'var(--ink-soft)'}" stroke-width="2"/><rect x="13" y="2.5" width="6" height="3" rx="1" fill="${c||'var(--ink-soft)'}"/>${[0,1,2,3].map(i=>i<lvl?`<rect x="12.5" y="${23.5-i*5}" width="7" height="3.6" rx="1" fill="${c||'var(--bloom)'}"/>`:'').join('')}</svg>`,
+ pen:c=>`<svg viewBox="0 0 24 24" style="width:20px;height:20px;vertical-align:-4px;margin-inline-end:8px"><path d="M4 20l1-5L16 4l4 4L9 19z" fill="none" stroke="${c||'currentColor'}" stroke-width="2" stroke-linejoin="round"/></svg>`,
+ leaf:c=>`<svg viewBox="0 0 60 90"><path d="M30 88C30 60 30 30 50 4C22 18 8 46 30 88z" fill="${c||'#8FBF9A'}" opacity=".55"/><path d="M30 88C34 60 40 34 50 4" stroke="#6A9E77" stroke-width="1.5" fill="none" opacity=".6"/></svg>`
+};
+const NAVI = [
+ '<svg viewBox="0 0 24 24"><path d="M4 11l8-7 8 7v9a1 1 0 0 1-1 1h-5v-6h-4v6H5a1 1 0 0 1-1-1z" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"/></svg>',
+ '<svg viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.9"/><path d="M3.5 10h17M8 3v4M16 3v4" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></svg>',
+ '<svg viewBox="0 0 24 24"><path d="M5 20V12M10 20V6M15 20v-9M20 20V9" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>',
+ '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="1.9"/></svg>',
+ '<svg viewBox="0 0 24 24"><circle cx="5" cy="12" r="2" fill="currentColor"/><circle cx="12" cy="12" r="2" fill="currentColor"/><circle cx="19" cy="12" r="2" fill="currentColor"/></svg>'
+];
+function ovuInfo(c){ if(S.user.bc==='yes'||c.p.late||c.p.ovu<TODAY) return null; return diffDays(TODAY,c.p.ovu); }
+const ovuTxt = n => n===0 ? DT.ovuToday : DT.ovuIn(n);
 
 /* ---------- общие данные для экранов ---------- */
 function homeCtx(){
@@ -395,6 +490,52 @@ const HOME = {
    <div class="fl"><div><b>${c.p.late?T.lateT(c.p.late):c.until+' '+DT.daysW(c.until)}</b><small>${T.ph_period}: ${fmtDate(c.p.nextP)}</small></div>
    <div data-log><b>${T.logday}</b><small>${c.phLbl}</small></div></div>${trialBar()}`;
  },
+ P(c,v){
+  const o = ovuInfo(c), pct = Math.min(1, c.day/c.len), R=44, L=2*Math.PI*R;
+  v.innerHTML = `<div class="hlogo">${IC.flower()}Nia</div>
+   <div class="p-card"><span class="pi">${IC.flower()}</span><div><b>${DT.dayNth(c.day)} · ${c.phLbl}</b><small>${c.title}</small></div></div>
+   <div class="p-ring"><span class="p-leaf" style="inset-inline-start:-34px;bottom:6px">${IC.leaf()}</span><span class="p-leaf" style="inset-inline-end:-34px;bottom:6px;transform:scaleX(-1)">${IC.leaf('#F2B3C0')}</span>
+    <svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="${R}" fill="#fff" stroke="var(--bloom-soft)" stroke-width="5"/>
+    <circle cx="50" cy="50" r="${R}" fill="none" stroke="var(--bloom)" stroke-width="5" stroke-linecap="round" stroke-dasharray="${(L*pct).toFixed(1)} ${L.toFixed(1)}" transform="rotate(-90 50 50)"/></svg>
+    <div class="c">${IC.flower()}<b>${c.day}</b><span>${T.dayof}</span></div></div>
+   <button class="cta" data-log>${IC.pen()}${T.logday}</button>
+   <div class="sec">${DT.yourPred}</div>
+   <div class="p-two"><div data-log>${IC.drop()}<span><b>${T.ph_period}</b><small>${c.untilTxt}</small></span></div>
+    <div data-log>${IC.heart()}<span><b>${o!=null?T.ph_ovu:c.phLbl}</b><small>${o!=null?ovuTxt(o):fmtDate(c.p.nextP)}</small></span></div></div>${trialBar()}`;
+ },
+ S(c,v){
+  const o = ovuInfo(c), pct = Math.min(1, c.day/c.len), R=44, L=2*Math.PI*R, lg = S.logs[TODAY]||{}, M=S.user.metrics;
+  const tiles = [[IC.drop('#E2557A',lg.flow!=null?lg.flow/4:0), T.flow, lg.flow!=null?T['f'+lg.flow]:DT.notLogged]];
+  if(M.includes('mood')) tiles.push([IC.smile(), T.mood, (lg.mood||[]).length?(lg.mood||[]).map(labelOf).join(', '):DT.notLogged]);
+  if(M.includes('energy')) tiles.push([IC.bolt('#2E8F6B'), T.energy, lg.energy!=null?T['en'+(lg.energy+1)]:DT.notLogged]);
+  if(M.includes('sleep')) tiles.push([IC.moon(), T.sleeph, lg.sleep!=null?String(lg.sleep):DT.notLogged]);
+  if(M.includes('pain')) tiles.push([IC.bolt('#D9566E'), T.pain, (lg.pain||[]).length?(lg.pain||[]).map(labelOf).join(', '):DT.notLogged]);
+  v.innerHTML = `<div class="hlogo">${IC.flower('#F08C8C')}Nia</div>
+   <div class="s-ring"><svg viewBox="0 0 100 100"><defs><linearGradient id="sgr" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FBB59A"/><stop offset="1" stop-color="#EE6F86"/></linearGradient></defs>
+    <circle cx="50" cy="50" r="${R}" fill="none" stroke="var(--bloom-soft)" stroke-width="6"/>
+    <circle cx="50" cy="50" r="${R}" fill="none" stroke="url(#sgr)" stroke-width="6" stroke-linecap="round" stroke-dasharray="${(L*pct).toFixed(1)} ${L.toFixed(1)}" transform="rotate(-90 50 50)"/></svg>
+    <div class="c">${IC.drop('#EE6F86')}<b>${DT.dayNth(c.day)}</b><span>${o!=null?ovuTxt(o):c.untilTxt}</span></div></div>
+   <div class="s-info">${IC.flower('#F7A26B')}<div><b>${c.phLbl}</b><small>${c.title}</small></div></div>
+   <button class="cta" data-log>+ ${T.logday}</button>
+   <div class="sec">${DT.yourData}</div>
+   <div class="s-grid">${tiles.slice(0,4).map(([i,t,val])=>`<div data-log>${i}<small>${t}</small><b>${val}</b></div>`).join('')}</div>${trialBar()}`;
+ },
+ K(c,v){
+  const pl=c.p.pLen, L=c.len, ovD=diffDays(c.p.lastStart,c.p.ovu)+1, bc=S.user.bc==='yes';
+  const seg = bc ? null : [[T.ph_period,1,pl],[T.ph_foll,pl+1,ovD-1],[T.ph_ovu,ovD,Math.min(L,ovD+1)],[T.ph_luteal,Math.min(L,ovD+2),L]];
+  const cur = seg ? seg.findIndex(x=>c.day>=x[1]&&c.day<=x[2]) : -1;
+  let wave=''; if(seg){ let d='M0 15'; for(let x=0;x<=320;x+=10) d+=` L${x} ${(15+Math.sin(x/16)*4).toFixed(1)}`;
+    const dots = seg.map(x=>((x[1]+x[2])/2-.5)/L*320);
+    const tx = Math.min(320,Math.max(0,(c.day-.5)/L*320));
+    wave = `<div class="k-wave"><svg viewBox="0 0 320 30" preserveAspectRatio="none"><path d="${d}" fill="none" stroke="var(--ink)" stroke-width="1.3" opacity=".7"/>
+      ${dots.map(x=>`<circle cx="${x.toFixed(1)}" cy="${(15+Math.sin(x/16)*4).toFixed(1)}" r="3.5" fill="var(--ink)"/>`).join('')}
+      <circle cx="${tx.toFixed(1)}" cy="${(15+Math.sin(tx/16)*4).toFixed(1)}" r="6" fill="var(--bloom)" stroke="var(--canvas)" stroke-width="2"/></svg></div>
+      <div class="k-ph">${seg.map((x,i)=>`<div class="${i===cur?'on':''}"><b>${x[0]}</b><span>${x[1]}${x[2]>x[1]?'–'+x[2]:''}</span></div>`).join('')}</div>`; }
+  v.innerHTML = `<div class="k-eye">${T.today}</div><div class="k-rule"></div>
+   <div class="k-big">${DT.dayNth(c.day)}</div><p class="k-lead">${c.title}.</p>${wave}
+   <div class="k-card"><div class="k-eye">${DT.phaseT}</div><em>${c.phLbl}</em><p>${c.body}</p></div>
+   <button class="cta" data-log>${T.logday}</button><div class="k-note">${DT.onlyPhone}</div>${trialBar()}`;
+ },
  G(c,v){
   let mini=''; for(let i=0;i<c.len;i++){ const ds=addDays(c.p.lastStart,i); mini+=`<i class="${dayCls(ds,c.p)}"></i>`; }
   const lg = S.logs[TODAY];
@@ -480,6 +621,13 @@ const CAL = {
   v.innerHTML = `${monthNav()}<div class="wr" style="min-height:30px"><b>${DT.wk}</b>${T.wd.map(w=>`<i style="font-size:11px;cursor:default">${w}</i>`).join('')}</div>${rows}${legend()}${histHtml()}`;
  },
  F(v){ v.innerHTML = `${monthNav()}${gridHtml(calY,calM)}${legend()}${histHtml()}`; },
+ P(v){ CAL._new(v); }, S(v){ CAL._new(v); }, K(v){ CAL._new(v); },
+ _new(v){
+  const p=predict();
+  v.innerHTML = `${monthNav()}${gridHtml(calY,calM)}${legend()}
+   ${p?`<div class="hint" style="background:var(--surface)">${IC.drop(null,1)}<div><b>${fmtDate(p.nextP)}</b><br><small style="color:var(--ink-soft)">${T.predP}</small></div></div>`:''}
+   <div class="hint"><span class="hi">i</span><span>${DT.calHint}</span></div>${histHtml()}`;
+ },
  G(v){
   v.innerHTML = `<div class="gfeed"><div class="gm1" style="max-width:100%">${monthNav()}${gridHtml(calY,calM,'sq')}</div>
    <div class="gm1">${legend()}</div></div>${histHtml()}`;
@@ -495,7 +643,19 @@ function logGroups(){
   if(M.includes('energy')) g.push([T.energy,'energy',['en1','en2','en3','en4'],true]);
   return g;
 }
+const MOOD_EMO = {mo1:'😌',mo2:'😊',mo3:'😟',mo4:'😠',mo5:'😔'};
+function icoOf(key,k,i){
+  if(key==='flow') return i===0 ? IC.drop('var(--ink-soft)',0) : IC.drop('var(--bloom)', i/4);
+  if(key==='mood') return `<span>${MOOD_EMO[k]}</span>`;
+  if(key==='energy') return IC.batt(i+1);
+  return '';
+}
 function grpHtml([lbl,key,items,single], style){
+  if(style==='icons' && (key==='flow'||key==='mood'||key==='energy'))
+    return `<div class="lbl">${lbl}</div><div class="opts icons ${items.length===4?'n4':''}" data-g="${key}" data-single="${single?1:0}">
+      ${items.map((k,i)=>{ const on = single ? draft[key]===i : (draft[key]||[]).includes(k);
+        return `<div class="opt ${on?'on':''}" data-v="${single?i:k}"><span class="ic">${icoOf(key,k,i)}</span>${T[k]}</div>`; }).join('')}</div>`;
+  if(style==='icons') style='';
   const isDots = style==='dots' && single;
   const sel = single ? (draft[key]!=null ? T[items[draft[key]]] : '—') : '';
   return `<div class="lbl">${lbl}</div><div class="opts ${isDots?'dots':style==='dots'?'':style}" data-g="${key}" data-single="${single?1:0}">
@@ -530,7 +690,7 @@ function openSheet(d){
   draft.pain = (draft.pain||[]).map(normKey).filter(Boolean);
   const sh = $('sheet');
   if(DS==='D') return questionSheet(0);
-  const style = {A:'',B:'dots',C:'tiles',E:'squares',F:'checks',G:''}[DS];
+  const style = {A:'',B:'dots',C:'tiles',E:'squares',F:'checks',G:'',P:'icons',S:'icons',K:'icons'}[DS];
   const groups = logGroups().map(g=> DS==='G'
     ? `<div class="gm1" style="margin:14px 0 8px">${DT.q(g[0])}</div>${grpHtml(g,'').replace(/<div class="lbl">.*?<\/div>/,'').replace('class="opts ','class="opts gchips ')}`
     : grpHtml(g,style)).join('');
@@ -1602,6 +1762,35 @@ try{ const st=document.createElement('style');
   st.textContent='html[lang=hi] *,html[lang=ar] *{letter-spacing:0!important}';
   document.head.appendChild(st); }catch(e){}
 
+// названия и тексты оформлений Цветы / Сад / Бумага
+const DZ2 = {
+ ru:{P:'Цветы',Ps:'Нежный розовый с цветами',S:'Сад',Ss:'Зелень и персик, всё на виду',K:'Бумага',Ks:'Спокойная бумага и шрифт с засечками',
+   yourPred:'Ваши прогнозы',yourData:'Сегодня',onlyPhone:'Данные остаются только на этом телефоне',phaseT:'Фаза цикла',
+   ovuIn:n=>`Овуляция через ${n} ${ruPl(n,['день','дня','дней'])}`,ovuToday:'Овуляция сегодня',notLogged:'не отмечено',calHint:'Нажмите на дату, чтобы добавить данные'},
+ kk:{P:'Гүлдер',Ps:'Гүлдері бар нәзік қызғылт',S:'Бақ',Ss:'Жасыл мен шабдалы, бәрі көз алдында',K:'Қағаз',Ks:'Тыныш қағаз және серифті қаріп',
+   yourPred:'Болжамдарыңыз',yourData:'Бүгін',onlyPhone:'Деректер тек осы телефонда қалады',phaseT:'Цикл фазасы',
+   ovuIn:n=>`Овуляцияға ${n} күн қалды`,ovuToday:'Овуляция бүгін',notLogged:'белгіленбеген',calHint:'Дерек қосу үшін күнді басыңыз'},
+ en:{P:'Bloom',Ps:'Soft pink with flowers',S:'Garden',Ss:'Greens and peach, everything at a glance',K:'Paper',Ks:'Calm paper and a serif font',
+   yourPred:'Your forecast',yourData:'Today',onlyPhone:'Your data stays on this phone only',phaseT:'Cycle phase',
+   ovuIn:n=>`Ovulation in ${n} day${n===1?'':'s'}`,ovuToday:'Ovulation today',notLogged:'not logged',calHint:'Tap a date to add data'},
+ es:{P:'Flores',Ps:'Rosa suave con flores',S:'Jardín',Ss:'Verde y melocotón, todo a la vista',K:'Papel',Ks:'Papel sereno y tipografía con serifa',
+   yourPred:'Tus pronósticos',yourData:'Hoy',onlyPhone:'Tus datos se quedan solo en este teléfono',phaseT:'Fase del ciclo',
+   ovuIn:n=>`Ovulación en ${n} ${n===1?'día':'días'}`,ovuToday:'Ovulación hoy',notLogged:'sin registrar',calHint:'Toca una fecha para añadir datos'},
+ fr:{P:'Fleurs',Ps:'Rose tendre et fleurs',S:'Jardin',Ss:'Vert et pêche, tout en un coup d’œil',K:'Papier',Ks:'Papier apaisant et police à empattements',
+   yourPred:'Tes prévisions',yourData:'Aujourd’hui',onlyPhone:'Tes données restent uniquement sur ce téléphone',phaseT:'Phase du cycle',
+   ovuIn:n=>`Ovulation dans ${n} jour${n>1?'s':''}`,ovuToday:'Ovulation aujourd’hui',notLogged:'non noté',calHint:'Touche une date pour ajouter des données'},
+ de:{P:'Blüten',Ps:'Zartes Rosa mit Blumen',S:'Garten',Ss:'Grün und Pfirsich, alles auf einen Blick',K:'Papier',Ks:'Ruhiges Papier und Serifenschrift',
+   yourPred:'Deine Prognosen',yourData:'Heute',onlyPhone:'Deine Daten bleiben nur auf diesem Handy',phaseT:'Zyklusphase',
+   ovuIn:n=>`Eisprung in ${n} ${n===1?'Tag':'Tagen'}`,ovuToday:'Eisprung heute',notLogged:'nicht eingetragen',calHint:'Tippe auf ein Datum, um Daten hinzuzufügen'},
+ ar:{P:'زهور',Ps:'وردي ناعم مع زهور',S:'حديقة',Ss:'أخضر وخوخي، كل شيء أمامك',K:'ورق',Ks:'ورق هادئ وخط كلاسيكي',
+   yourPred:'توقّعاتك',yourData:'اليوم',onlyPhone:'تبقى بياناتك على هذا الهاتف فقط',phaseT:'مرحلة الدورة',
+   ovuIn:n=>`الإباضة بعد ${arDays(n)}`,ovuToday:'الإباضة اليوم',notLogged:'غير مسجّل',calHint:'المسي تاريخًا لإضافة بيانات'},
+ hi:{P:'फूल',Ps:'फूलों के साथ हल्का गुलाबी',S:'बगीचा',Ss:'हरा और आड़ू रंग, सब एक नज़र में',K:'काग़ज़',Ks:'शांत काग़ज़ और सेरिफ़ फ़ॉन्ट',
+   yourPred:'आपके अनुमान',yourData:'आज',onlyPhone:'आपका डेटा सिर्फ़ इसी फ़ोन पर रहता है',phaseT:'चक्र का चरण',
+   ovuIn:n=>`ओव्यूलेशन ${n} दिन में`,ovuToday:'आज ओव्यूलेशन',notLogged:'दर्ज नहीं',calHint:'डेटा जोड़ने के लिए तारीख़ पर टैप करें'}
+};
+Object.keys(DZ2).forEach(l=>Object.assign(DZ[l],DZ2[l]));
+
 /* ================= ХРАНИЛИЩЕ ================= */
 const KEY = 'nia.v1';
 const blank = () => ({
@@ -1923,7 +2112,7 @@ try{ new MutationObserver(()=>adSync()).observe(document.getElementById('sheet')
      new MutationObserver(()=>adSync()).observe(document.getElementById('vpw'), {attributes:true, attributeFilter:['class']}); }catch(e){}
 // место под баннер: навигация и контент поднимаются на высоту рекламы
 try{ const st=document.createElement('style');
-  st.textContent='body.ads{--sb:calc(env(safe-area-inset-bottom,0px) + var(--adh,0px))}';
+  st.textContent='body.ads{--sb:calc(var(--safe-area-inset-bottom,env(safe-area-inset-bottom,0px)) + var(--adh,0px))}';
   document.head.appendChild(st); }catch(e){}
 
 /* ================= ВСПОМОГАТЕЛЬНОЕ ================= */
@@ -2185,7 +2374,7 @@ function enterApp(){
 
 /* ================= НАВИГАЦИЯ ================= */
 function renderNav(){
-  $('nav').innerHTML = [['◐',T.today],['▦',T.cal],['◭',T.ins],['◌',T.near],['◇',T.more]]
+  $('nav').innerHTML = [[NAVI[0],T.today],[NAVI[1],T.cal],[NAVI[2],T.ins],[NAVI[3],T.near],[NAVI[4],T.more]]
     .map(([i,t],n)=>`<div class="nb ${n===tab?'on':''}" data-t="${n}"><i>${i}</i><span>${t}</span>${n===3?`<span class="badge">${T.soon.toUpperCase()}</span>`:''}</div>`).join('');
   $('nav').querySelectorAll('[data-t]').forEach(b=>b.onclick=()=>goTab(+b.dataset.t));
 }

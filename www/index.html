@@ -13,7 +13,7 @@
 <style>
 :root{--canvas:#FDF7F3;--surface:#FFF;--ink:#2B2140;--ink-soft:#6B6280;--bloom:#C4577A;
 --bloom-soft:#F6E2E8;--sage:#6E9478;--sage-soft:#E4EEE6;--mist:#EDE6F5;--line:#EBE2DC;--r:20px;
---st:env(safe-area-inset-top,0px);--sb:env(safe-area-inset-bottom,0px)}
+--st:var(--safe-area-inset-top,env(safe-area-inset-top,0px));--sb:var(--safe-area-inset-bottom,env(safe-area-inset-bottom,0px))}
 @media (prefers-color-scheme:dark){:root{--canvas:#17131F;--surface:#211B2C;--ink:#F2ECF5;--ink-soft:#9F96AE;
 --bloom:#E38AA8;--bloom-soft:#3A2430;--sage:#8FBA99;--sage-soft:#22301F;--mist:#2C2438;--line:#332B41}}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
