@@ -684,11 +684,11 @@ function monthDays(y,m){
   const p = predict(), out=[], lead=(new Date(y,m,1).getDay()+6)%7, dim=new Date(y,m+1,0).getDate();
   for(let i=0;i<lead;i++) out.push(null);
   for(let d=1; d<=dim; d++){ const ds=`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-    out.push({ds,d,c:(p?dayCls(ds,p):(ds===TODAY?'today':''))+(S.logs[ds]?' dot':'')}); }
+    out.push({ds,d,c:(p?dayCls(ds,p):(ds===TODAY?'today':''))+(S.logs[ds]?' dot':'')+(S.logs[ds]&&S.logs[ds].sex!=null?' sx':'')}); }
   return out;
 }
 const gridHtml = (y,m,extra='') => `<div class="gmh">${T.wd.map(w=>`<div>${w}</div>`).join('')}</div>
-  <div class="gm ${extra}">${stripify(monthDays(y,m)).map(x=>x?`<i class="${x.c}" data-d="${x.ds}">${x.d}</i>`:'<i class="x"></i>').join('')}</div>`;
+  <div class="gm ${extra}">${stripify(monthDays(y,m)).map(x=>x?`<i class="${x.c}" data-d="${x.ds}">${x.d}${/\bsx\b/.test(x.c)?'<b class="hx">♥</b>':''}</i>`:'<i class="x"></i>').join('')}</div>`;
 function stripify(a){ const g=x=>!x?'':/\b(period|pred)\b/.test(x.c)?'p':/\b(fert|ovu)\b/.test(x.c)?'f':'';
   return a.map((x,j)=>{ const k=g(x); if(!k) return x; const col=j%7;
     const L = col===0 || g(a[j-1])!==k, R = col===6 || g(a[j+1])!==k;
@@ -696,7 +696,7 @@ function stripify(a){ const g=x=>!x?'':/\b(period|pred)\b/.test(x.c)?'p':/\b(fer
 const monthNav = ()=> `<div class="mnav"><button data-m="-1">‹</button><h1 style="margin:0;font-size:22px">${T.monN[calM]} ${calY}</h1><button data-m="1">›</button></div>`;
 const legend = ()=> `<div class="legend"><span><i class="sw" style="background:var(--bloom)"></i>${T.ph_period}</span>
   <span><i class="sw" style="background:var(--bloom-soft)"></i>${T.predicted}</span><span><i class="sw" style="background:var(--sage-soft)"></i>${T.ph_fert}</span>
-  <span><i class="sw" style="background:var(--sage)"></i>${T.ph_ovu}</span></div>`;
+  <span><i class="sw" style="background:var(--sage)"></i>${T.ph_ovu}</span><span><b style="color:#E0436B">♥</b> ${SXT().t}</span></div>`;
 function histHtml(){
   const cs = S.cycles.slice().sort((a,b)=>a.start<b.start?1:-1);
   return `<div class="eyebrow">${T.hist}</div>` + (cs.length ? cs.map((c,i)=>{
@@ -749,7 +749,7 @@ const CAL = {
   for(let i=0;i<days.length;i+=7){ const wk=days.slice(i,i+7); while(wk.length<7) wk.push(null);
     const first=wk.find(Boolean); const dt=parse(first.ds); const onejan=new Date(dt.getFullYear(),0,1);
     const wn=Math.ceil(((dt-onejan)/864e5 + ((onejan.getDay()+6)%7)+1)/7);
-    rows += `<div class="wr"><b>${wn}</b>${wk.map(x=>x?`<i class="${x.c}" data-d="${x.ds}">${x.d}</i>`:'<i></i>').join('')}</div>`; }
+    rows += `<div class="wr"><b>${wn}</b>${wk.map(x=>x?`<i class="${x.c}" data-d="${x.ds}">${x.d}${/\bsx\b/.test(x.c)?'<b class="hx">♥</b>':''}</i>`:'<i></i>').join('')}</div>`; }
   v.innerHTML = `${monthNav()}<div class="wr" style="min-height:30px"><b>${DT.wk}</b>${T.wd.map(w=>`<i style="font-size:11px;cursor:default">${w}</i>`).join('')}</div>${rows}${legend()}${histHtml()}`;
  },
  F(v){ v.innerHTML = `${monthNav()}${gridHtml(calY,calM)}${legend()}${histHtml()}`; },
@@ -773,6 +773,7 @@ function logGroups(){
   if(M.includes('mood')) g.push([T.mood,'mood',['mo1','mo2','mo3','mo4','mo5'],false]);
   if(M.includes('pain')) g.push([T.pain,'pain',['pa1','pa2','pa3','pa4','pa5'],false]);
   if(M.includes('energy')) g.push([T.energy,'energy',['en1','en2','en3','en4'],true]);
+  g.push([SXT().t,'sex',['sx1','sx2'],true]);
   return g;
 }
 const MOOD_EMO = {mo1:'😌',mo2:'😊',mo3:'😟',mo4:'😠',mo5:'😔'};
@@ -780,10 +781,11 @@ function icoOf(key,k,i){
   if(key==='flow') return i===0 ? IC.drop('var(--ink-soft)',0) : IC.drop('var(--bloom)', i/4);
   if(key==='mood') return `<span>${MOOD_EMO[k]}</span>`;
   if(key==='energy') return IC.batt(i+1);
+  if(key==='sex') return `<span style="color:${i?'#E0436B':'var(--bloom)'}">${i?'♥':'♡'}</span>`;
   return '';
 }
 function grpHtml([lbl,key,items,single], style){
-  if(style==='icons' && (key==='flow'||key==='mood'||key==='energy'))
+  if(style==='icons' && (key==='flow'||key==='mood'||key==='energy'||key==='sex'))
     return `<div class="lbl">${lbl}</div><div class="opts icons ${items.length===4?'n4':''}" data-g="${key}" data-single="${single?1:0}">
       ${items.map((k,i)=>{ const on = single ? draft[key]===i : (draft[key]||[]).includes(k);
         return `<div class="opt ${on?'on':''}" data-v="${single?i:k}"><span class="ic">${icoOf(key,k,i)}</span>${T[k]}</div>`; }).join('')}</div>`;
@@ -2811,7 +2813,7 @@ function saveDay(){
 
   const prevFlow = S.logs[sheetDate] ? S.logs[sheetDate].flow : null;
   const empty = draft.flow==null && !(draft.mood||[]).length && !(draft.pain||[]).length
-                && draft.energy==null && draft.sleep==null && draft.bbt==null;
+                && draft.energy==null && draft.sleep==null && draft.bbt==null && draft.sex==null;
   if(empty) delete S.logs[sheetDate]; else S.logs[sheetDate] = draft;
 
   // менструация: слабые и сильнее — отмечаем; «Нет» или снятая отметка — убираем;
@@ -2901,3 +2903,19 @@ setTimeout(dropSplash, 1900);
 window.addEventListener('load', ()=>setTimeout(dropSplash, 2100));
 const _sp=$('splash'); if(_sp) _sp.addEventListener('click', dropSplash);
 const _tg=$('tagline'); if(_tg) _tg.textContent = T.tagline;
+
+/* ===== Секс: отметка в дневнике и сердечко в календаре ===== */
+const SX_TXT = {
+ ru:{t:'Секс', sx1:'С защитой', sx2:'Без защиты'},
+ kk:{t:'Жыныстық қатынас', sx1:'Қорғаныспен', sx2:'Қорғаныссыз'},
+ en:{t:'Sex', sx1:'Protected', sx2:'Unprotected'},
+ es:{t:'Sexo', sx1:'Con protección', sx2:'Sin protección'},
+ fr:{t:'Rapport', sx1:'Protégé', sx2:'Non protégé'},
+ de:{t:'Sex', sx1:'Geschützt', sx2:'Ungeschützt'},
+ ar:{t:'علاقة حميمة', sx1:'بحماية', sx2:'بدون حماية'},
+ hi:{t:'सेक्स', sx1:'सुरक्षित', sx2:'असुरक्षित'}
+};
+function SXT(){ const x = SX_TXT[LANG] || SX_TXT.en; if(typeof T==='object' && T){ T.sx1 = x.sx1; T.sx2 = x.sx2; } return x; }
+(function(){ const st=document.createElement('style');
+ st.textContent='.gm i.sx{position:relative}.gm i .hx{position:absolute;top:1px;right:3px;font-size:10px;line-height:1;color:#E0436B;font-weight:400;pointer-events:none}[dir=rtl] .gm i .hx{right:auto;left:3px}';
+ document.head.appendChild(st); })();
